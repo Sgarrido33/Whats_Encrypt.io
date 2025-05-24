@@ -1,11 +1,15 @@
 import React, { useState } from "react";
 import "./Chat.css";
-import AttachFile from "@material-ui/icons/AttachFile";
-import SearchOutlined from "@material-ui/icons/SearchOutlined";
-import MoreVert from "@material-ui/icons/MoreVert";
-import InsertEmoticon from "@material-ui/icons/InsertEmoticon";
-import Mic from "@material-ui/icons/Mic";
-import { Avatar, IconButton } from "@material-ui/core";
+
+import AttachFileIcon from '@mui/icons-material/AttachFile';
+import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import InsertEmoticonIcon from "@mui/icons-material/InsertEmoticon";
+import MicIcon from "@mui/icons-material/Mic";
+
+
+import { Avatar, IconButton } from "@mui/material"; 
+
 import axios from "./axios";
 
 export const Chat = ({ messages }) => {
@@ -15,9 +19,9 @@ export const Chat = ({ messages }) => {
     event.preventDefault();
     await axios.post("/api/v1/messages/new", {
       message: input,
-      name: "Faizal Vasaya",
-      timestamp: new Date(),
-      received: false,
+      name: "Faizal Vasaya", 
+      timestamp: new Date().toUTCString(), 
+      received: false, 
     });
 
     setInput("");
@@ -26,41 +30,46 @@ export const Chat = ({ messages }) => {
   return (
     <div className="chat">
       <div className="chat__header">
-        <Avatar src="" />
+        <Avatar src="" /> 
         <div className="chat__headerInfo">
-          <h3>Room name</h3>
-          <p>Last seen at ...</p>
+          <h3>Room name</h3> 
+          <p>Last seen at ...</p> 
         </div>
         <div className="chat__headerRight">
           <IconButton>
-            <AttachFile />
+            <AttachFileIcon />
           </IconButton>
           <IconButton>
-            <SearchOutlined />
+            <SearchOutlinedIcon />
           </IconButton>
           <IconButton>
-            <MoreVert />
+            <MoreVertIcon />
           </IconButton>
         </div>
       </div>
+
       <div className="chat__body">
-        {messages.map((message) => {
+        {messages.map((message, index) => { 
           return (
             <p
+              key={index} 
               className={`chat__message ${
-                message.received && "chat__receiver"
+                message.received ? "chat__receiver" : "" 
               }`}
             >
               <span className="chat__name">{message.name}</span>
               {message.message}
-              <span className="chat__timestamp">{message.timestamp}</span>
+              <span className="chat__timestamp">
+                {message.timestamp} 
+              </span>
             </p>
           );
         })}
       </div>
+
       <div className="chat__footer">
         <IconButton>
-          <InsertEmoticon />
+          <InsertEmoticonIcon />
         </IconButton>
         <form>
           <input
@@ -74,7 +83,7 @@ export const Chat = ({ messages }) => {
           </button>
         </form>
         <IconButton>
-          <Mic></Mic>
+          <MicIcon />
         </IconButton>
       </div>
     </div>
