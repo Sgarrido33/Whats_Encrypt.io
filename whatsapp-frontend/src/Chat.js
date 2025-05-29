@@ -10,19 +10,24 @@ import MicIcon from "@mui/icons-material/Mic";
 
 import { Avatar, IconButton } from "@mui/material"; 
 
-import axios from "./axios";
-
-export const Chat = ({ messages }) => {
+export const Chat = ({ messages, socket }) => {
   const [input, setInput] = useState("");
 
   const sendMessage = async (event) => {
-    event.preventDefault();
-    await axios.post("/api/v1/messages/new", {
+    event.preventDefault(); 
+
+    const messageData = {
       message: input,
-      name: "Faizal Vasaya", 
-      timestamp: new Date().toUTCString(), 
-      received: false, 
-    });
+      name: "Rodrigo Castro", 
+      timestamp: new Date().toUTCString(),
+      received: true, 
+    };
+
+    if (socket) { 
+        socket.emit("message", messageData); 
+    } else {
+        console.error("Error: Socket.IO no está conectado. No se pudo enviar el mensaje.");
+    }
 
     setInput("");
   };
@@ -30,10 +35,10 @@ export const Chat = ({ messages }) => {
   return (
     <div className="chat">
       <div className="chat__header">
-        <Avatar src="" /> 
+        <Avatar src="" />
         <div className="chat__headerInfo">
-          <h3>Room name</h3> 
-          <p>Last seen at ...</p> 
+          <h3>Room name</h3>
+          <p>Last seen at ...</p>
         </div>
         <div className="chat__headerRight">
           <IconButton>
@@ -49,18 +54,18 @@ export const Chat = ({ messages }) => {
       </div>
 
       <div className="chat__body">
-        {messages.map((message, index) => { 
+        {messages.map((message, index) => {
           return (
             <p
-              key={index} 
+              key={index}
               className={`chat__message ${
-                message.received ? "chat__receiver" : "" 
+                message.received ? "chat__receiver" : ""
               }`}
             >
               <span className="chat__name">{message.name}</span>
               {message.message}
               <span className="chat__timestamp">
-                {message.timestamp} 
+                {message.timestamp}
               </span>
             </p>
           );
