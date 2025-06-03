@@ -8,7 +8,7 @@ const cors = require('cors');
 const app = express();
 const port = process.env.PORT || 9000; 
 // Mongodb Atlas (la base de datos)
-const connection_url = 'mongodb+srv://TacV0WqoHjQkLZtq:contraseñacambiada@whats.pdy6fht.mongodb.net/?retryWrites=true&w=majority&appName=Whats';
+const connection_url = 'mongodb+srv://socket:contraseña123@clusterwhats.tuxjrmd.mongodb.net/?retryWrites=true&w=majority&appName=ClusterWhats';
 
 app.use(express.json()); // Parsear JSON en las peticiones
 app.use(cors()); // Habilita CORS todas las rutas
