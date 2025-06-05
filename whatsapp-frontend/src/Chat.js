@@ -7,23 +7,25 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import InsertEmoticonIcon from "@mui/icons-material/InsertEmoticon";
 import MicIcon from "@mui/icons-material/Mic";
 
-
 import { Avatar, IconButton } from "@mui/material"; 
 
-export const Chat = ({ messages, socket }) => {
+export const Chat = ({ messages, socket, userName }) => {
   const [input, setInput] = useState("");
 
   const sendMessage = async (event) => {
     event.preventDefault(); 
 
+    if (input.trim() === "") {
+      return;
+    }
+
     const messageData = {
       message: input,
-      name: "Rodrigo Castro", 
+      name: "userName", 
       timestamp: new Date().toUTCString(),
-      received: true, 
     };
 
-    if (socket) { 
+    if (socket && socket.connected) { 
         socket.emit("message", messageData); 
     } else {
         console.error("Error: Socket.IO no está conectado. No se pudo enviar el mensaje.");
@@ -37,8 +39,8 @@ export const Chat = ({ messages, socket }) => {
       <div className="chat__header">
         <Avatar src="" />
         <div className="chat__headerInfo">
-          <h3>Room name</h3>
-          <p>Last seen at ...</p>
+          <h3>{userName || "Cargando nombre..."}</h3> 
+          <p>Última vez visto a las ...</p>
         </div>
         <div className="chat__headerRight">
           <IconButton>
@@ -58,8 +60,9 @@ export const Chat = ({ messages, socket }) => {
           return (
             <p
               key={index}
+              // Si el nombre del mensaje es IGUAL al nombre del usuario actual, NO es 'chat__receiver'
               className={`chat__message ${
-                message.received ? "chat__receiver" : ""
+                message.name === userName ? "" : "chat__receiver" 
               }`}
             >
               <span className="chat__name">{message.name}</span>
@@ -80,11 +83,11 @@ export const Chat = ({ messages, socket }) => {
           <input
             onChange={(e) => setInput(e.target.value)}
             value={input}
-            placeholder="Type a message"
+            placeholder="Escribe un mensaje"
             type="text"
           />
           <button onClick={sendMessage} type="submit">
-            Send a message
+            Enviar
           </button>
         </form>
         <IconButton>
