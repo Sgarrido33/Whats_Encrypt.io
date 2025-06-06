@@ -21,7 +21,7 @@ export const Chat = ({ messages, socket, userName }) => {
 
     const messageData = {
       message: input,
-      name: "userName", 
+      name: userName, 
       timestamp: new Date().toUTCString(),
     };
 
@@ -60,9 +60,8 @@ export const Chat = ({ messages, socket, userName }) => {
           return (
             <p
               key={index}
-              // Si el nombre del mensaje es IGUAL al nombre del usuario actual, NO es 'chat__receiver'
               className={`chat__message ${
-                message.name === userName ? "" : "chat__receiver" 
+                message.name === userName ? "chat__sent" : "" 
               }`}
             >
               <span className="chat__name">{message.name}</span>
