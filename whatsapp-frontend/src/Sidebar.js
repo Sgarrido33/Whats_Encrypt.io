@@ -14,7 +14,7 @@ function Sidebar() {
   return (
     <div className="sidebar">
       <div className="sidebar__header">
-        <Avatar src="https://avatars.githubusercontent.com/u/29179470?s=40&v=4" />
+        <Avatar src="/avatar.jpg" />
         <div className="sidebar__headerRight">
           <IconButton>
             <DonutLargeIcon />
@@ -35,8 +35,6 @@ function Sidebar() {
       </div>
 
       <div className="sidebar__chats">
-        <SidebarChat />
-        <SidebarChat />
         <SidebarChat />
       </div>
     </div>
