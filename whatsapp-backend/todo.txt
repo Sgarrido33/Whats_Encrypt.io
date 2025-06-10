@@ -1,2 +1,0 @@
-Socket.io arreglar porblema con la base de datos, no se si es tema del URL(contraseña)
-Por sea, se corre el backend con node server.js y el front con npm start
