@@ -1,0 +1,104 @@
+
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f0f2f5;
+}
+
+.login-card {
+    background-color: #fff;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 1px 1px rgba(0,0,0,0.08), 0 2px 2px rgba(0,0,0,0.08), 0 4px 4px rgba(0,0,0,0.08), 0 8px 8px rgba(0,0,0,0.08), 0 16px 16px rgba(0,0,0,0.08);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+}
+
+.login-card h2 {
+    margin-bottom: 25px;
+    color: #1a1a1a;
+    font-size: 28px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #4a4a4a;
+}
+
+.form-group input {
+    width: calc(100% - 20px);
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.form-group input:focus {
+    border-color: #00bfa5;
+}
+
+.login-button {
+    background-color: #00bfa5;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.login-button:hover {
+    background-color: #00a894;
+}
+
+/* Los estilos .message, .message.success, .message.error son los mismos que en Register.css */
+.message {
+    margin-top: 20px;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 15px;
+}
+
+.message.success {
+    background-color: #e6ffe6;
+    color: #3d9970;
+    border: 1px solid #3d9970;
+}
+
+.message.error {
+    background-color: #ffe6e6;
+    color: #cc0000;
+    border: 1px solid #cc0000;
+}
+
+.switch-form {
+    margin-top: 25px;
+    color: #555;
+    font-size: 15px;
+}
+
+.switch-form span {
+    color: #00bfa5;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.switch-form span:hover {
+    text-decoration: underline;
+}

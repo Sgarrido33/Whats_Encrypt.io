@@ -3,18 +3,22 @@
     flex-direction: column;
     flex: 0.35;
 }
-.sidebar__header {
-    display: flex;
-    justify-content: space-between;
-    padding: 20px;
-    border-right: 1px solid lightgray;
-}
-
 .sidebar__headerRight {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    min-width: 10vw;
+    justify-content: space-between; 
+    min-width: 10vw; 
+}
+
+.sidebar__userName {
+    margin-right: 10px; 
+    font-weight: 600;
+    font-size: 1.1em;
+    color: #4a4a4a;
+}
+
+.sidebar__header .MuiIconButton-root {
+    margin-left: 2px; 
 }
 
 .sidebar__headerRight > .MuiSvgIcon-root {
@@ -51,7 +55,85 @@
 }
 
 .sidebar__chats {
-    flex:1;
-    background-color: white;
+    flex: 1;
     overflow: scroll;
+    -ms-overflow-style: none;  
+    scrollbar-width: none;  
+}
+
+
+.sidebar__chats::-webkit-scrollbar {
+    display: none;
+}
+
+.search-results, .no-results, .no-conversations {
+    padding: 10px 15px;
+    background-color: #f8f8f8;
+    border-bottom: 1px solid #f6f6f6;
+    color: #555;
+    font-size: 0.9em;
+}
+
+.search-results h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #008069;
+}
+
+.search-result-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.search-result-item:last-child {
+    border-bottom: none;
+}
+
+.search-result-item:hover {
+    background-color: #f0f0f0;
+}
+
+.search-result-item .MuiAvatar-root {
+    margin-right: 15px;
+}
+
+.search-result-item span {
+    font-weight: 600;
+    flex: 1;
+    color: #333;
+}
+
+.search-result-item button {
+    background-color: #00a884;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.8em;
+}
+
+.sidebar__separator {
+    border: 0;
+    height: 1px;
+    background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0));
+    margin: 15px 0;
+}
+
+.no-conversations {
+    font-style: italic;
+    color: #777;
+}
+
+
+.sidebarChat.active {
+    background-color: #e0e0e0; 
+}
+
+.sidebarChat.active:hover {
+    background-color: #e0e0e0; 
 }
