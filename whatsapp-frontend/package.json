@@ -7,18 +7,30 @@
     "@emotion/styled": "^11.11.0",
     "@mui/icons-material": "^5.15.15",
     "@mui/material": "^5.15.15",
-    "axios": "^1.6.8",           
+    "assert": "^2.1.0",
+    "axios": "^1.6.8",
+    "buffer": "^6.0.3",
+    "crypto-browserify": "^3.12.1",
+    "customize-cra": "^1.0.0",
+    "libsignal": "^2.0.1",
+    "path-browserify": "^1.0.1",
+    "process": "^0.11.10",
     "react": "^18.3.1",
+    "react-app-rewired": "^2.2.1",
     "react-dom": "^18.3.1",
     "react-scripts": "5.0.1",
     "react-transition-group": "^4.4.5",
     "socket.io-client": "^4.8.1",
+    "stream-browserify": "^3.0.0",
+    "tweetnacl": "^1.0.3",
+    "tweetnacl-util": "^0.15.1",
+    "vm-browserify": "^1.1.2",
     "web-vitals": "^1.1.2"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
+    "start": "react-app-rewired start",
+    "build": "react-app-rewired build",
+    "test": "react-app-rewired test",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -44,8 +56,8 @@
     "@testing-library/react": "^14.2.1",
     "@testing-library/user-event": "^14.5.2"
   },
-    "engines": {                   
-    "node": ">=22.16.0",          
-    "npm": ">=10.9.2"           
+  "engines": {
+    "node": ">=22.16.0",
+    "npm": ">=10.9.2"
   }
 }

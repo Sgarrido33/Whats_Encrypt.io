@@ -1,6 +1,5 @@
-
 require('dotenv').config();
-
+const Keys = require('./models/Keys');
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -131,6 +130,58 @@ app.post('/api/v1/conversations', protect, async (req, res) => {
   } catch (error) {
     console.error('Error al crear/obtener conversación:', error);
     res.status(500).json({ message: 'Error interno del servidor al procesar la conversación.' });
+  }
+});
+
+app.post('/api/v1/keys/upload', protect, async (req, res) => {
+  // Ahora solo esperamos una 'publicKey' en el cuerpo de la petición
+  const { publicKey } = req.body;
+  const currentUserId = req.user;
+
+  if (!publicKey) {
+    return res.status(400).json({ message: 'No se proporcionó la clave pública.' });
+  }
+
+  try {
+    // La clave vendrá del cliente en formato Base64, la guardamos como Buffer
+    const keyData = {
+      userId: currentUserId,
+      publicKey: Buffer.from(publicKey, 'base64'),
+    };
+    
+    // Usamos 'findOneAndUpdate' con 'upsert' para crear o actualizar la clave del usuario.
+    await Keys.findOneAndUpdate({ userId: currentUserId }, keyData, { upsert: true, new: true });
+
+    res.status(201).json({ message: 'Clave pública almacenada exitosamente.' });
+  } catch (error) {
+    console.error('Error al guardar la clave pública:', error);
+    res.status(500).json({ message: 'Error interno del servidor al guardar la clave.' });
+  }
+});
+
+app.get('/api/v1/keys/:userId', protect, async (req, res) => {
+  const { userId } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
+    return res.status(400).json({ message: 'ID de usuario inválido.' });
+  }
+
+  try {
+    const keyDoc = await Keys.findOne({ userId });
+
+    if (!keyDoc) {
+      return res.status(404).json({ message: 'No se encontró la clave para este usuario.' });
+    }
+
+    // Devolvemos la clave pública en formato Base64 para que sea fácil de usar en el frontend
+    res.status(200).json({
+      publicKey: keyDoc.publicKey.toString('base64'),
+    });
+
+  } catch (error)
+  {
+    console.error('Error al obtener la clave pública:', error);
+    res.status(500).json({ message: 'Error interno del servidor al obtener la clave.' });
   }
 });
 

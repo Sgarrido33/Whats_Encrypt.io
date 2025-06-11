@@ -1,31 +1,21 @@
+// src/SidebarChat.jsx
+
 import React from 'react';
-import './SidebarChat.css';
 import { Avatar } from '@mui/material';
+import './SidebarChat.css';
 
-function SidebarChat({ conversationId, otherUser, lastMessage, lastMessageSender, updatedAt, selectChat, isActive }) {
-  const handleClick = () => {
-    selectChat(conversationId, otherUser);
-  };
-
+// El componente ahora solo recibe una prop 'onClick' y los datos a mostrar
+function SidebarChat({ otherUser, lastMessage, isActive, onClick }) {
   return (
-    <div className={`sidebarChat ${isActive ? 'active' : ''}`} onClick={handleClick}>
-      <Avatar src={`https://avatars.dicebear.com/api/human/${otherUser}.svg`} />
+    // Ejecutamos la función onClick que nos pasa el componente padre (Sidebar)
+    <div className={`sidebarChat ${isActive ? 'active' : ''}`} onClick={onClick}>
+      <Avatar>{otherUser ? otherUser[0].toUpperCase() : '?'}</Avatar>
       <div className="sidebarChat__info">
-        <h2>{otherUser}</h2> 
-        {lastMessage && (
-            <p>
-                {lastMessageSender === localStorage.getItem('username') ? 'Tú: ' : ''}
-                {lastMessage}
-            </p>
-        )}
+        <h2>{otherUser}</h2>
+        <p>{lastMessage?.ciphertext ? '(Mensaje cifrado)' : lastMessage}</p>
       </div>
-      {updatedAt && (
-          <span className="sidebarChat__timestamp">
-              {new Date(updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-          </span>
-      )}
     </div>
   );
 }
 
-export { SidebarChat }; 
+export { SidebarChat };

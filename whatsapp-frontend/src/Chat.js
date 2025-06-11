@@ -7,8 +7,9 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import InsertEmoticonIcon from '@mui/icons-material/InsertEmoticonOutlined';
 import MicIcon from '@mui/icons-material/MicOutlined';
 import axios from './axios';
+import cryptoService from './crypto-service';
 
-function Chat({ messages, socket, userName, chatUser, conversationId }) {
+function Chat({ messages, socket, userName, chatUser, conversationId, otherUserId }) {
   const [input, setInput] = useState("");
   const messagesEndRef = useRef(null); 
 
@@ -18,18 +19,27 @@ function Chat({ messages, socket, userName, chatUser, conversationId }) {
     }
   }, [messages]);
 
-  const sendMessage = (e) => {
+  const sendMessage = async (e) => {
     e.preventDefault();
 
-    if (!input || !socket || !chatUser || !conversationId) { 
-        console.error("No se pudo enviar el mensaje: Faltan input, socket, chatUser o conversationId.", { input, socket, chatUser, conversationId });
+    if (!input || !conversationId || !otherUserId) {
+        console.error("No se puede enviar el mensaje: Faltan datos esenciales (input, conversationId, or otherUserId).");
         return;
     }
 
+    // --- PASO 1: CIFRADO DEL MENSAJE ---
+    const encryptedPayload = cryptoService.encrypt(otherUserId, input);
+
+    if (!encryptedPayload) {
+      alert("Error: No se pudo cifrar el mensaje. La sesión segura podría no estar establecida.");
+      return;
+    }
+
+    // El payload que se envía al backend ahora contiene el objeto cifrado
     const messagePayload = {
-      message: input,
-      name: userName, 
-      timestamp: new Date().toISOString(), 
+      message: encryptedPayload, // Ya no es texto plano
+      name: userName,
+      timestamp: new Date().toISOString(),
     };
 
     const token = localStorage.getItem('authToken');
@@ -38,29 +48,29 @@ function Chat({ messages, socket, userName, chatUser, conversationId }) {
       return;
     }
 
-    axios.post(`/api/v1/conversations/${conversationId}/messages/new`, messagePayload, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-    .then(response => {
-        console.log('Mensaje enviado al backend:', response.data);
-    })
-    .catch(error => {
-        console.error('Error al enviar mensaje:', error.response?.data || error.message);
+    // --- PASO 2: ENVÍO DEL PAYLOAD CIFRADO ---
+    try {
+      await axios.post(`/api/v1/conversations/${conversationId}/messages/new`, messagePayload, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log('Mensaje cifrado enviado al backend.');
+    } catch (error) {
+        console.error('Error al enviar mensaje cifrado:', error.response?.data || error.message);
         alert(`Error al enviar mensaje: ${error.response?.data?.message || error.message}`);
-    });
+    }
 
     setInput("");
   };
 
-
-  if (!chatUser || !conversationId) { 
+  // Un placeholder si no hay ningún chat activo seleccionado
+  if (!chatUser || !conversationId) {
     return (
       <div className="chat">
         <div className="chat__placeholder">
           <h1>Bienvenido a WhatsApp Clone</h1>
-          <p>Selecciona un chat existente o inicia una nueva conversación buscando un usuario.</p>
+          <p>Selecciona un chat para empezar a enviar mensajes cifrados.</p>
         </div>
       </div>
     );
@@ -69,10 +79,11 @@ function Chat({ messages, socket, userName, chatUser, conversationId }) {
   return (
     <div className="chat">
       <div className="chat__header">
-        <Avatar src={`https://avatars.dicebear.com/api/human/${chatUser}.svg`} />
+        {/* Usamos la inicial del usuario para el Avatar */}
+        <Avatar>{chatUser ? chatUser[0].toUpperCase() : '?'}</Avatar>
         <div className="chat__headerInfo">
-          <h3>{chatUser}</h3> 
-          <p>Última vez hoy a la 1:30 PM</p> 
+          <h3>{chatUser}</h3>
+          <p>Última conexión...</p>
         </div>
         <div className="chat__headerRight">
           <IconButton>
@@ -88,9 +99,10 @@ function Chat({ messages, socket, userName, chatUser, conversationId }) {
       </div>
 
       <div className="chat__body">
-        {messages.map((message) => ( 
+        {/* Mapeamos y mostramos los mensajes (que ya llegan descifrados desde App.jsx) */}
+        {messages.map((message) => (
           <p
-            key={message._id} 
+            key={message._id}
             className={`chat__message ${message.name === userName ? 'chat__sent' : ''}`}
           >
             <span className="chat__name">{message.name}</span>
@@ -105,15 +117,15 @@ function Chat({ messages, socket, userName, chatUser, conversationId }) {
 
       <div className="chat__footer">
         <InsertEmoticonIcon />
-        <form>
+        <form onSubmit={sendMessage}>
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Type a message"
+            placeholder="Escribe un mensaje cifrado"
             type="text"
           />
-          <button onClick={sendMessage} type="submit">
-            Send a message
+          <button type="submit">
+            Enviar mensaje
           </button>
         </form>
         <MicIcon />

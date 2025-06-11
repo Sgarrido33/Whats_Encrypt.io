@@ -10,7 +10,7 @@ const conversationSchema = new mongoose.Schema({
 
  
   lastMessage: {
-    type: String,
+    type: mongoose.Schema.Types.Mixed,
     default: null,
   },
   lastMessageSender: {

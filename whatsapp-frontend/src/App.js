@@ -6,6 +6,7 @@ import SocketIOClient from 'socket.io-client';
 import axios from './axios';
 import Register from './Register';
 import Login from './Login';
+import cryptoService from './crypto-service';
 
 const BACKEND_URL = 'http://localhost:9000'; 
 
@@ -16,10 +17,15 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showLogin, setShowLogin] = useState(true);
   
-  const [activeChatId, setActiveChatId] = useState(null); 
-  const [activeChatUser, setActiveChatUser] = useState(null); 
+  // Estados para manejar el chat activo
+  const [activeChatId, setActiveChatId] = useState(null);
+  const [activeChatUser, setActiveChatUser] = useState(null);
+  // **NUEVO**: Estado para guardar el ID del otro usuario en el chat activo
+  const [activeChatOtherUserId, setActiveChatOtherUserId] = useState(null);
+  
   const currentUserId = useRef(null); 
 
+  // Efecto para restaurar la sesión desde localStorage
   useEffect(() => {
     const storedToken = localStorage.getItem('authToken');
     const storedUsername = localStorage.getItem('username');
@@ -33,6 +39,7 @@ function App() {
     }
   }, []);
 
+  // Efecto para manejar la conexión de Socket.IO y el descifrado de mensajes
   useEffect(() => {
     if (!isLoggedIn) {
       if (socket) {
@@ -51,33 +58,43 @@ function App() {
             console.log("App.js - Conectado al servidor de Socket.IO");
             if (currentUserId.current) {
                 newSocket.emit('registerUserForNotifications', currentUserId.current);
-                console.log(`Socket ${newSocket.id} registrado para notificaciones del usuario ${currentUserId.current}`);
             }
         });
 
+        // --- LISTENER DE MENSAJES CON DESCIFRADO ---
         newSocket.on("message", (newMessage) => {
-            console.log("App.js - Nuevo mensaje recibido vía Socket.IO:", newMessage);
-            if (activeChatId && newMessage.conversationId && newMessage.conversationId.toString() === activeChatId.toString()) {
-                 setMessages((prevMessages) => [...prevMessages, newMessage]);
+            console.log("App.js - Nuevo mensaje CIFRADO recibido:", newMessage);
+            
+            if (activeChatId && newMessage.conversationId?.toString() === activeChatId.toString()) {
+                 // 1. Desciframos el payload del mensaje usando el ID del remitente
+                 const decryptedText = cryptoService.decrypt(newMessage.senderId, newMessage.message);
+                 
+                 // 2. Creamos un nuevo objeto de mensaje con el texto ya descifrado
+                 const messageWithDecryptedText = {
+                   ...newMessage,
+                   message: decryptedText, // Reemplazamos el objeto cifrado por el texto plano
+                 };
+
+                 // 3. Añadimos el mensaje descifrado al estado para mostrarlo en la UI
+                 setMessages((prevMessages) => [...prevMessages, messageWithDecryptedText]);
             } else {
                 console.log('Mensaje recibido para otra conversación o sin chat activo. No se actualiza el chat actual.');
+                // Aquí podrías implementar una notificación de "nuevo mensaje"
             }
         });
-
 
         newSocket.on("disconnect", () => {
             console.log("App.js - Desconectado del servidor de Socket.IO");
         });
 
         return () => {
-            if (newSocket) {
-                newSocket.disconnect();
-            }
+            if (newSocket) newSocket.disconnect();
         };
     }
-  }, [isLoggedIn, socket, activeChatId]); 
+  }, [isLoggedIn, socket, activeChatId]); // Dependemos de activeChatId para el descifrado
 
-  const handleLoginSuccess = (loggedInUsername, loggedInUserId, token) => {
+  // Manejador para cuando el login es exitoso
+  const handleLoginSuccess = async (loggedInUsername, loggedInUserId, token) => {
     setIsLoggedIn(true);
     setUserName(loggedInUsername);
     currentUserId.current = loggedInUserId; 
@@ -86,31 +103,36 @@ function App() {
     localStorage.setItem('userId', loggedInUserId); 
 
     console.log(`Usuario ${loggedInUsername} (ID: ${loggedInUserId}) ha iniciado sesión.`);
+
+    // --- CRIPTOGRAFÍA ---
+    // Aseguramos que el usuario tenga sus claves generadas y registradas en el servidor.
+    await cryptoService.generateAndRegisterKeys(token);
+    
+    // Reseteamos el estado de los chats
     setMessages([]);
     setActiveChatId(null);
     setActiveChatUser(null);
+    setActiveChatOtherUserId(null);
 
     if (socket) { 
         socket.emit('registerUserForNotifications', loggedInUserId);
-        console.log(`Socket registrado para notificaciones del usuario ${loggedInUserId} al iniciar sesión.`);
     }
   };
 
-  const handleRegisterSuccess = () => {
-    setShowLogin(true);
-  };
+  const handleRegisterSuccess = () => setShowLogin(true);
 
+  // Manejador para cerrar sesión
   const handleLogout = () => {
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('username');
-    localStorage.removeItem('userId'); 
+    localStorage.clear(); // Limpiamos todo el localStorage
     setIsLoggedIn(false);
     setUserName('');
     currentUserId.current = null; 
     setShowLogin(true);
+    // Reseteamos todos los estados de chat
     setMessages([]);
     setActiveChatId(null);
     setActiveChatUser(null);
+    setActiveChatOtherUserId(null);
     if (socket) {
       socket.disconnect();
       setSocket(null);
@@ -118,10 +140,12 @@ function App() {
     console.log('Sesión cerrada.');
   };
 
-  const selectChat = async (conversationId, chatUser) => {
-      console.log(`Chat seleccionado: ID ${conversationId}, Usuario: ${chatUser}`);
+  // Manejador para cuando se selecciona un chat de la lista
+  const selectChat = async (conversationId, chatUser, otherUserId) => {
+      console.log(`Chat seleccionado: ID ${conversationId}, Usuario: ${chatUser}, OtherUserID: ${otherUserId}`);
       setActiveChatId(conversationId);
       setActiveChatUser(chatUser);
+      setActiveChatOtherUserId(otherUserId); // Guardamos el ID del otro usuario
       setMessages([]); 
 
       try {
@@ -130,21 +154,34 @@ function App() {
             console.error('No se encontró el token de autenticación para cargar mensajes.');
             return;
         }
-        const response = await axios.get(`/api/v1/conversations/${conversationId}/messages`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
-        setMessages(response.data);
-        console.log(`Mensajes cargados para ${chatUser}:`, response.data);
 
+        // --- CRIPTOGRAFÍA ---
+        // 1. Obtener la clave pública del otro usuario
+        const theirPublicKey = await cryptoService.getPublicKeyForUser(otherUserId, token);
+        if (theirPublicKey) {
+          // 2. Calcular y guardar el secreto compartido para esta conversación
+          cryptoService.computeAndStoreSharedSecret(otherUserId, theirPublicKey);
+        }
+
+        // Cargamos el historial de mensajes (que llegarán cifrados)
+        const response = await axios.get(`/api/v1/conversations/${conversationId}/messages`, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+
+        // Desciframos el historial de mensajes
+        const decryptedHistory = response.data.map(msg => {
+            const senderId = msg.senderId;
+            const decryptedText = cryptoService.decrypt(otherUserId, msg.message);
+            return { ...msg, message: decryptedText };
+        });
+
+        setMessages(decryptedHistory);
+        console.log(`Mensajes descifrados cargados para ${chatUser}:`, decryptedHistory);
+
+        // Nos unimos a la "sala" de socket para recibir mensajes en tiempo real para este chat
         if (socket) {
-            if (activeChatId) { 
-                socket.emit('leaveRoom', activeChatId); 
-                console.log(`Dejando sala anterior: ${activeChatId}`);
-            }
+            if (activeChatId) socket.emit('leaveRoom', activeChatId); 
             socket.emit('joinRoom', conversationId);
-            console.log(`Unido a la sala de Socket.IO: ${conversationId}`);
         }
 
       } catch (error) {
@@ -153,14 +190,14 @@ function App() {
       }
   };
 
-
+  // Renderizado condicional: Muestra Login/Register o la app principal
   if (!isLoggedIn) {
     return (
       <div className="app">
         {showLogin ? (
           <Login 
             onRegisterClick={() => setShowLogin(false)} 
-            onLoginSuccess={(username, userId, token) => handleLoginSuccess(username, userId, token)}
+            onLoginSuccess={handleLoginSuccess}
           />
         ) : (
           <Register 
@@ -172,6 +209,7 @@ function App() {
     );
   }
 
+  // Renderizado de la aplicación principal
   return (
     <div className="app">
       <div className="app__body">
@@ -182,18 +220,18 @@ function App() {
           activeChatId={activeChatId} 
           socket={socket} 
         /> 
-        {activeChatUser ? (
+        {activeChatId ? (
           <Chat 
             messages={messages} 
-            socket={socket} 
             userName={userName} 
             chatUser={activeChatUser} 
             conversationId={activeChatId} 
+            otherUserId={activeChatOtherUserId} // Pasamos el ID del otro usuario al componente Chat
           />
         ) : (
           <div className="chat__placeholder">
-            <h1>Bienvenido a WhatsApp Clone</h1>
-            <p>Selecciona un chat existente o inicia una nueva conversación buscando un usuario.</p>
+            <h1>Bienvenido a tu Chat Cifrado</h1>
+            <p>Selecciona una conversación o busca un usuario para empezar.</p>
           </div>
         )}
       </div>

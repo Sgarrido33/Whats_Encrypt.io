@@ -6,7 +6,10 @@ const messageSchema = mongoose.Schema({
       ref: 'Conversation', 
       required: true,
     },
-    message: String,
+    message: {
+      ciphertext: String,
+      nonce: String,
+    },
     name: String, 
     senderId: { 
         type: mongoose.Schema.Types.ObjectId,
