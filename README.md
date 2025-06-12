@@ -20,7 +20,9 @@ En el presente proyecto se desarrollado una solución de seguridad orientada a l
   </li>
   <li>Añadir autenticación fuera de banda
 </ul>
+
 ### Sobre el esquema y medidas de seguridad para tener altos estándares de seguridad
+
 <ol>
   <li> Se autentifica a los usuarios que ingresan a la web mediante el registro de usuario - contraseña, usando tokens JWT para asegurar la identidad y seguridad de las cuentas de los usuarios.
   </li>
@@ -32,7 +34,7 @@ En el presente proyecto se desarrollado una solución de seguridad orientada a l
   </li>
 </ol>
 
-**Sobre el diseño y funcionalidades (con especificaciones de seguridad)
+### Sobre el diseño y funcionalidades (con especificaciones de seguridad)
 
 ![Etica y Seguridad de datos - diseño whatsapp drawio](https://github.com/user-attachments/assets/e674b7ed-5cd9-4015-866d-bf7b5cde64c1)
 
