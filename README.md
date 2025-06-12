@@ -5,13 +5,23 @@
 ## Primera entrega
 En el presente proyecto se desarrollado una solución de seguridad orientada a la mensajeria instantánea ecriptada. Se tiene una aplicación web que permite la comunicación directa entre usuarios mediante un chat que asegura la privacidad mediante un cifrado de extremo a extremo (E2EE)-
 
-**Interfaz del cliente**
+
+## Motivación del Proyecto: Restableciendo la Privacidad en la Mensajería
+
+En la mensajería instantánea actual, existe un problema fundamental: la **falta de privacidad y la dependencia total en la confianza del proveedor de servicio**. Los mensajes pueden ser interceptados o leídos por terceros, incluyendo a las propias empresas detrás de las aplicaciones. Esta vulnerabilidad es una constante amenaza para la confidencialidad de nuestras comunicaciones.
+
+Nuestra solución aborda esto directamente mediante el **cifrado de extremo a extremo (E2EE)**. Esto significa que los mensajes se cifran en el dispositivo del remitente y solo se descifran en el del receptor. El servidor solo actúa como un intermediario que retransmite datos cifrados, sin la capacidad de leer el contenido original.
+
+Con el E2EE, no solo protegemos tu información de accesos no autorizados, sino que te devolvemos el **control absoluto sobre tu privacidad**. La seguridad de tus conversaciones no depende de una promesa, sino de la **garantía matemática de la criptografía**. Este proyecto busca asegurar que tus palabras, y solo tus palabras, permanezcan confidenciales.
+
+
+## **Interfaz del cliente**
 
 
   <img width="828" alt="image" src="https://github.com/user-attachments/assets/73b0766d-b722-44b6-b8e9-cf302da9f1cf" />
 
 
-### Objetivos
+## Objetivos
 
 ### Sobre seguridad con criptografía 
 <ul>
@@ -112,10 +122,7 @@ Basado en la descripción de la primera entrega, estos son los requerimientos de
     - Interfaz de usuario para el envío y recepción de mensajes.
     - Visualización de mensajes descifrados en la interfaz del cliente.
 
-  - **Seguridad ante un problema observado en la vida real**:
-
-El problema observado es la falta de privacidad y confiabilidad en la mensajería instantánea tradicional, donde los mensajes pueden ser interceptados o leídos por terceros (incluido el proveedor del servicio). La solución propuesta aborda esto directamente mediante el cifrado de extremo a extremo (E2EE), asegurando que solo el remitente y el receptor puedan leer los mensajes, eliminando la capacidad del servidor de acceder al contenido claro de los mensajes.
-
+      
   - **Las medidas de seguridad implementadas deben permitir al usuario hacer uso de su data, y usar la aplicación con el fin especificado**:
 
 Las funcionalidades de registro, inicio de sesión, y comunicación con E2EE permiten a los usuarios interactuar con la aplicación de forma segura, sabiendo que sus conversaciones están protegidas. La gestión de claves está integrada en el flujo de uso, de modo que el cifrado es transparente para el usuario final, quien solo necesita iniciar sesión y chatear.
@@ -268,8 +275,35 @@ Variables de entorno (.env) para la configuración sensible (URLs de base de dat
 
    - **Uso de certificados digitales (Autofirmados o con una CA propia)**:
 
-     - **Transporte seguro (HTTPS/WSS)**: Implementación de SSL/TLS para asegurar la comunicación entre el cliente y el servidor (API REST y WebSockets). Aunque para una primera entrega se pueden usar certificados autofirmados en desarrollo, para producción se requeriría una CA de confianza (Let's Encrypt, etc.).
+     - **Transporte seguro (HTTPS/WSS)**: Implementación de SSL/TLS para asegurar la comunicación entre el cliente y el servidor (API REST y WebSockets). Aunque para la primera entrega se están usando certificados autofirmados en desarrollo, para la segunda entrega se usará una CA de confianza (certificación real).
      - **Autenticación adicional mediante certificados de seguridad**: Como se menciona en los objetivos, para autenticar a usuarios que deseen comunicarse con usuarios no registrados, se puede implementar un mecanismo donde el cliente genere un par de claves y un certificado autofirmado (o emitido por una CA privada). Este certificado podría intercambiarse fuera de banda y usarse para verificar la identidad del cliente en el protocolo de establecimiento de sesión (más allá de JWT).
 
+###  Implementación propuesta y lograda:
 
+**El proyecto engloba especificamente las siguientes tareas:**
 
+  - Creación de un framework para el usuario de mensajería instantánea
+  - Implementar un sistema de distribución de llaves de altos estándares de seguridad por medio del protocolo de Signal
+  - Encriptación de mensajes en el cliente, envió al servidor para transmisión E2EE.
+  - Permitir la transmición de mensajes asíncronos.
+  - Implementa autenticación fuera de banda.
+
+**Para la primera entrega del proyecto se plantearon las siguientes tareas** 
+
+  - Implementar la interfaz tanto del usuario y en el backend para la mensajería instantánea, registro e inicio de sesión de usuarios.
+  - Implementar el sistema de gestión de llaves, tanto la autenticación por JWT, y de llave pública y privada.
+  - Implementar el sistema de cifrado de mensajes E2EE.
+  - Configuración del almacenamiento de mensajes y contraseñas con los respectivos backups(Mongodb-Atlas).
+
+**Se culminaron todas**
+
+### Lecciones aprendidas y retrospectiva.
+
+**Conceptos nuevos**
+
+  - Comunicación en Tiempo Real con WebSockets: Descubrimos que la mensajería instantánea demanda una comunicación bidireccional y persistente entre el backend y el frontend. Para lograr esto de manera eficiente, fue esencial implementar WebSockets. Esta tecnología nos permitió enviar mensajes en tiempo real desde el servidor a los clientes sin necesidad de consultar constantemente (polling) nuevos endpoints, lo que optimizó el rendimiento y la fluidez de la experiencia de chat.
+  - Gestión de Backups en la Nube (MongoDB Atlas): Implementar un sistema de respaldo robusto para nuestra base de datos resultó sorprendentemente eficiente gracias a los servicios SaaS de almacenamiento como MongoDB Atlas. Sus configuraciones de Cloud Backup están altamente optimizadas, permitiéndonos establecer políticas de snapshots continuos y recuperación puntual de forma rápida. Esto nos liberó de la compleja tarea de gestionar la infraestructura de backups manualmente, permitiéndonos concentrarnos en otros componentes críticos del proyecto.
+
+**Desafios**
+
+  - Implementación del Protocolo Signal: El mayor desafío ha sido y sigue siendo la correcta implementación del Protocolo Signal para el cifrado de extremo a extremo. Esto iba mucho más allá de simplemente "cifrar mensajes", implicaba comprender y manejar la compleja derivación de claves criptográficas (KDF Chain y Double Ratchet) para cada mensaje. El objetivo es asegurar que cada mensaje se cifre con una clave única y efímera, aunque si se completo la gestión de llaves del protocolo X3ECDH(IK, SPK, OPK y EPK). Queda pendiente completar la derivación de llaves para la siguiente entrega.
