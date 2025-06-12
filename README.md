@@ -1,0 +1,35 @@
+# Proyecto - Ética y Seguridad de datos
+- Juan Aquino
+- Rodrigo Castro
+
+## Primer entrega
+En el presente proyecto se desarrollado una solución de seguridad orientada a la mensajeria instantánea ecriptada. Se tiene una aplicación web que permite la comunicación directa entre usuarios mediante un chat que asegura la privacidad mediante un cifrado de extremo a extremo (E2EE)-
+
+  <img width="828" alt="image" src="https://github.com/user-attachments/assets/73b0766d-b722-44b6-b8e9-cf302da9f1cf" />
+
+
+### Objetivos
+Sobre seguridad con criptografía
+<ul>
+  <li>Se plantea tener un cifrado de extremo a extremo de los mensajes para garantizar la confiablidad absoluta de los usuarios
+  </li>
+  <li>Se va implementar un sistema de distribución de llaves para autenticación y otorgar permisos en la aplicación
+  </li>
+  <li>Permitir la comunicación asíncrona
+  </li>
+  <li>Añadir autenticación fuera de banda
+</ul>
+Sobre el esquema y medidas de seguridad para tener altos estándares de seguridad
+<ol>
+  <li> Se autentifica a los usuarios que ingresan a la web mediante el registro de usuario - contraseña, usando tokens JWT para asegurar la identidad y seguridad de las cuentas de los usuarios.
+  </li>
+  <li> Se registra los logs de las transmision y conexiones de los usuarios para monitorear y realizar auditorias ante posibles vulnerabilidades.
+  </li>
+  <li> Se tendrá un backup de los mensajes del servidor, que almacena solo mensajes asíncronos que aún no se ha enviar a un usuario desconectado (todos encriptados).
+  </li>
+  <li> Se tendrá autenticación adicional mediante certificados de seguridad, para garantizar la autenticidad de los usuarios que deseen comunicarse con usuarios no regitrados.
+  </li>
+</ol>
+Sobre el diseño y funcionalidades (con especificaciones de seguridad)
+![Etica y Seguridad de datos - diseño whatsapp drawio](https://github.com/user-attachments/assets/e674b7ed-5cd9-4015-866d-bf7b5cde64c1)
+
