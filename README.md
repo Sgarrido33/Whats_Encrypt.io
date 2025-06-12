@@ -167,7 +167,14 @@ Medidas de protección de datos en reposo y transporte:
 
   - **Uso de herramientas para análisis de implementación**:
 
-    - **Análisis Estático de Código (SAST)**: Se podría integrar herramientas como SonarQube o ESLint (con reglas de seguridad) en el pipeline de CI/CD para identificar vulnerabilidades de seguridad comunes (ej. inyecciones, fugas de datos, mal uso de librerías criptográficas) en el código fuente antes de la implementación.
+    - **Análisis Estático con SonarQube:**
+        * Es una plataforma de **Análisis Estático de Código (SAST - Static Application Security Testing)** y gestión de calidad de código.
+        * Nos permite analizar el código fuente sin ejecutarlo.
+        * Detecta **bugs, code smells (malas prácticas de código), y vulnerabilidades de seguridad** en tiempo real.
+        * Es conveniente si se quiere integrar funcionalidades implementadas en otros lenguajes ya que soporta múltiples lenguajes de programación (Java, C#, JavaScript, Python, PHP, etc.).
+        * Proporciona un dashboard centralizado para visualizar los resultados, tendencias y deuda técnica, permitiendo asegurar la eficiencia y escalabilidad sinc comprometer la seguridad del servidor.
+
+
     - **Análisis Dinámico de Aplicaciones (DAST)**: Herramientas como OWASP ZAP o Burp Suite podrían utilizarse para realizar pruebas de penetración automatizadas contra la aplicación web desplegada, buscando vulnerabilidades como inyecciones, problemas de autenticación/autorización, o fallos en la configuración de la API.
     - **Auditoría de dependencias**: Herramientas como npm audit o Snyk se usarían para escanear las dependencias del proyecto en busca de vulnerabilidades conocidas.
 
