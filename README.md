@@ -2,9 +2,10 @@
 - Juan Aquino
 - Rodrigo Castro
 
-## Primer entrega
+## Primera entrega
 En el presente proyecto se desarrollado una solución de seguridad orientada a la mensajeria instantánea ecriptada. Se tiene una aplicación web que permite la comunicación directa entre usuarios mediante un chat que asegura la privacidad mediante un cifrado de extremo a extremo (E2EE)-
 
+** Interfaz del cliente **
   <img width="828" alt="image" src="https://github.com/user-attachments/assets/73b0766d-b722-44b6-b8e9-cf302da9f1cf" />
 
 
@@ -35,6 +36,8 @@ En el presente proyecto se desarrollado una solución de seguridad orientada a l
 </ol>
 
 ### Sobre el diseño y funcionalidades (con especificaciones de seguridad)
+
+** Arquitectura**
 
 ![Etica y Seguridad de datos - diseño whatsapp drawio](https://github.com/user-attachments/assets/e674b7ed-5cd9-4015-866d-bf7b5cde64c1)
 
