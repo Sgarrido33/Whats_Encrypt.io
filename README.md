@@ -8,6 +8,10 @@ En el presente proyecto se desarrollado una solución de seguridad orientada a l
   <img width="828" alt="image" src="https://github.com/user-attachments/assets/73b0766d-b722-44b6-b8e9-cf302da9f1cf" />
 
 
+  - **Seguridad ante un problema observado en la vida real**:
+
+El problema observado es la falta de privacidad y confiabilidad en la mensajería instantánea tradicional, donde los mensajes pueden ser interceptados o leídos por terceros (incluido el proveedor del servicio). La solución propuesta aborda esto directamente mediante el cifrado de extremo a extremo (E2EE), asegurando que solo el remitente y el receptor puedan leer los mensajes, eliminando la capacidad del servidor de acceder al contenido claro de los mensajes.
+
 ### Objetivos
 
 Sobre seguridad con criptografía
@@ -107,19 +111,15 @@ Basado en la descripción de la primera entrega, estos son los requerimientos de
     - Interfaz de usuario para el envío y recepción de mensajes.
     - Visualización de mensajes descifrados en la interfaz del cliente.
 
-  - **Seguridad ante un problema observado en la vida real**:
+  - **Gestión de los datos**:
 
-El problema observado es la falta de privacidad y confiabilidad en la mensajería instantánea tradicional, donde los mensajes pueden ser interceptados o leídos por terceros (incluido el proveedor del servicio). La solución propuesta aborda esto directamente mediante el cifrado de extremo a extremo (E2EE), asegurando que solo el remitente y el receptor puedan leer los mensajes, eliminando la capacidad del servidor de acceder al contenido claro de los mensajes.
-
-  - **Las medidas de seguridad implementadas deben permitir al usuario hacer uso de su data, y usar la aplicación con el fin especificado**:
-
-Las funcionalidades de registro, inicio de sesión, y comunicación con E2EE permiten a los usuarios interactuar con la aplicación de forma segura, sabiendo que sus conversaciones están protegidas. La gestión de claves está integrada en el flujo de uso, de modo que el cifrado es transparente para el usuario final, quien solo necesita iniciar sesión y chatear.
-
-  - **Base de datos (MongoDB Atlas)**: La elección de MongoDB Atlas ya implica que el proveedor maneja copias de seguridad automáticas, replicación para alta disponibilidad y recuperación ante desastres. Esto asegura la persistencia de mensajes asíncronos y claves públicas.
-
-  - **Código**: El código fuente se gestionaría en un sistema de control de versiones (ej. Git/GitHub) que permite la recuperación de versiones anteriores y actúa como un backup del código base.
-
-  - **Configuración de Servidores**: Implementación de prácticas de infraestructura como código (IaC) para la rápida reconstrucción de entornos en caso de fallo, con backups de configuración.
+    Las funcionalidades de registro, inicio de sesión, y comunicación con E2EE permiten a los usuarios interactuar con la aplicación de forma segura, sabiendo que sus conversaciones están protegidas. La gestión de claves está integrada en el flujo de uso, de modo que el cifrado es transparente para el usuario final, quien solo necesita iniciar sesión y chatear.
+  
+    - **Base de datos (MongoDB Atlas)**: La elección de MongoDB Atlas ya implica que el proveedor maneja copias de seguridad automáticas, replicación para alta disponibilidad y recuperación ante desastres. Esto asegura la persistencia de mensajes asíncronos y claves públicas.
+  
+    - **Código**: El código fuente se gestionaría en un sistema de control de versiones (ej. Git/GitHub) que permite la recuperación de versiones anteriores y actúa como un backup del código base.
+  
+    - **Configuración de Servidores**: Implementación de prácticas de infraestructura como código (IaC) para la rápida reconstrucción de entornos en caso de fallo, con backups de configuración.
 
 2. Requerimientos de Seguridad
 
