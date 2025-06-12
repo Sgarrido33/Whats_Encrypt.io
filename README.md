@@ -94,7 +94,7 @@ La aplicación tiene los siguientes flujos:
 
 <img width="590" alt="image" src="https://github.com/user-attachments/assets/7cefde76-88f4-4fd3-99c2-4f480ff3b6c5" />
 
-### Requerimientos de Proyecto:
+## Requerimientos de Proyecto:
 
 1. Requerimientos de Funcionalidad
 
@@ -133,7 +133,7 @@ Las funcionalidades de registro, inicio de sesión, y comunicación con E2EE per
 
   - **Configuración de Servidores**: Implementación de prácticas de infraestructura como código (IaC) para la rápida reconstrucción de entornos en caso de fallo, con backups de configuración.
 
-2. Requerimientos de Seguridad
+## 2. Requerimientos de Seguridad
 
 Medidas de protección de datos en reposo y transporte:
 
@@ -254,7 +254,7 @@ Medidas de protección de datos en reposo y transporte:
     - **Monitorización de Comportamiento Anómalo**: Implementar sistemas que detecten patrones de acceso inusuales o comportamientos sospechosos en la red o en las cuentas de usuario.
     - **Controles de acceso basados en roles (RBAC)**: Si la aplicación crece para incluir roles administrativos, implementar RBAC para limitar el acceso a funcionalidades sensibles.
 
-3. Otros Requerimientos Técnicos
+## 3. Otros Requerimientos Técnicos
 
   - **Arquitectura Cliente-Servidor**:
 
