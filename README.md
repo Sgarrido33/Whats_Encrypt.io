@@ -41,20 +41,17 @@ En el presente proyecto se desarrollado una solución de seguridad orientada a l
 
 **Arquitectura**
 
-![Etica y Seguridad de datos - diseño whatsapp drawio](https://github.com/user-attachments/assets/e674b7ed-5cd9-4015-866d-bf7b5cde64c1)
+![Etica y Seguridad de datos - diseño whatsapp drawio (1)](https://github.com/user-attachments/assets/c5097393-d042-4208-81a3-127424303bcc)
 
 La aplicación tiene los siguientes flujos:
 ### Registro de usuarios
-<ol>
-  <li> Cliente A -> Servidor: Petición POST con username/password se registra en la aplicación. 
-  </li>
-  <li> Servidor -> Cliente A: El servidor recibe la solicitud y genera tanto un token de autenticidad, registra al usuario y devuelve una respuesta con un token JWT si las credenciales son válidas. 
-  </li>
-  <li> Cliente A -> Servidor: Genera las llaves para identificarse a largo plazo al usuario, la llave de identidad IK, la llave de session presignedkey SPK y llaves de autenticación por canal de comunicación one-time key OPK, y se suben al servidor.
-  </li>
-  <li> Servidor: Guarda las llaves públicas del usuario y dispone las llaves para conectar la comunicación con otros usuarios.
-</ol>
 
+  - Cliente A -> Servidor: Petición POST con username/password se registra en la aplicación.
+  - Servidor -> Cliente A: El servidor recibe la solicitud y genera tanto un token de autenticidad, registra al usuario y devuelve una respuesta con un token JWT si las credenciales son válidas.
+  - Cliente A -> Servidor: Genera las llaves para identificarse a largo plazo al usuario, la llave de identidad IK, la llave de session presignedkey SPK y llaves de autenticación por canal de comunicación one-time key OPK, y se suben al servidor.
+  - Servidor: Guarda las llaves públicas del usuario y dispone las llaves para conectar la comunicación con otros usuarios.
+
+<img width="276" alt="image" src="https://github.com/user-attachments/assets/8c83376a-0fed-4168-bf1a-b99efb5fda1d" />
 
 
 ### Comunicación instantánea
@@ -82,6 +79,10 @@ La aplicación tiene los siguientes flujos:
   <li> Servidor: (Local en los Clientes): Descifran el mensaje con el Secreto Compartido para mostrarlo en la UI.
   </li>
 </ol>
+
+<img width="281" alt="image" src="https://github.com/user-attachments/assets/158ec3c0-837e-493f-ad3f-76a507e75b6e" />
+
+<img width="590" alt="image" src="https://github.com/user-attachments/assets/7cefde76-88f4-4fd3-99c2-4f480ff3b6c5" />
 
 ### Requerimientos de Proyecto:
 
