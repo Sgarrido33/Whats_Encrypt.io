@@ -255,9 +255,10 @@ app.post("/api/v1/conversations/:conversationId/messages/new", protect, async (r
     };
 
     const createdMessage = await Message.create(dbMessage);
+    io.to(conversationId).emit('message', createdMessage);
 
     await Conversation.findByIdAndUpdate(conversationId, {
-        lastMessage: message,
+        lastMessage: createdMessage.message,
         lastMessageSender: name,
         updatedAt: new Date(),
     });
@@ -273,17 +274,6 @@ app.post("/api/v1/conversations/:conversationId/messages/new", protect, async (r
 const db = mongoose.connection;
 db.once('open', () => {
   console.log("DB Conectada para Change Stream");
-
-  const msgCollection = db.collection('messagecontents'); 
-  const msgChangeStream = msgCollection.watch();
-
-  msgChangeStream.on('change', (change) => {
-    if (change.operationType === 'insert') {
-      const messageDetails = change.fullDocument;
-      console.log(`Nuevo mensaje en conversación ${messageDetails.conversationId}. Emitiendo a sala.`);
-      io.to(messageDetails.conversationId.toString()).emit('message', messageDetails);
-    }
-  });
 
   const convCollection = db.collection('conversations'); 
   const convChangeStream = convCollection.watch();

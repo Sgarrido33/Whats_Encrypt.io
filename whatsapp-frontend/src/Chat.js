@@ -22,13 +22,10 @@ function Chat({ messages, socket, userName, chatUser, conversationId, otherUserI
   const sendMessage = async (e) => {
     e.preventDefault();
 
-    if (!input || !conversationId || !otherUserId) {
-        console.error("No se puede enviar el mensaje: Faltan datos esenciales (input, conversationId, or otherUserId).");
-        return;
-    }
+    if (!input || !otherUserId) return;
 
     // --- PASO 1: CIFRADO DEL MENSAJE ---
-    const encryptedPayload = cryptoService.encrypt(otherUserId, input);
+    const encryptedPayload = await cryptoService.encrypt(otherUserId, input);
 
     if (!encryptedPayload) {
       alert("Error: No se pudo cifrar el mensaje. La sesión segura podría no estar establecida.");
