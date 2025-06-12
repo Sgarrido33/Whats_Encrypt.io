@@ -31,5 +31,20 @@ Sobre el esquema y medidas de seguridad para tener altos estándares de segurida
   </li>
 </ol>
 Sobre el diseño y funcionalidades (con especificaciones de seguridad)
+
 ![Etica y Seguridad de datos - diseño whatsapp drawio](https://github.com/user-attachments/assets/e674b7ed-5cd9-4015-866d-bf7b5cde64c1)
+
+La aplicación sigue el siguiente flujo:
+<ol>
+  <li> Cliente A -> Servidor: Petición POST con username/password se registra en la aplicación. 
+  </li>
+  <li> Servidor -> Cliente A: El servidor recibe la solicitud y genera tanto un token de autenticidad, registra al usuario y devuelve una respuesta con un token JWT si las credenciales son válidas. 
+  </li>
+  <li> Cliente A -> Servidor: Genera las llaves para identificarse a largo plazo al usuario, la llave de identidad IK, la llave de session presignedkey SPK y llaves de autenticación por canal de comunicación one-time key OPK, y se suben al servidor.>
+  </li>
+  <li> Servidor: Guarda las llaves públicas del usuario y dispone las llaves para conectar la comunicación con otros usuarios.
+  </li>
+  <li> ...
+  </li>
+</ol>
 
