@@ -102,10 +102,7 @@ Basado en la descripción de la primera entrega, estos son los requerimientos de
     - Autenticación de usuarios mediante JSON Web Tokens (JWT) para mantener la sesión y los permisos.
   
   - Gestión de Claves Criptográficas (Protocolo Signal):
-  
-    - Generación de claves de identidad (IK) de largo plazo para cada usuario.
-    - Generación de Signed Prekeys (SPK) para el establecimiento de sesiones.
-    - Generación y gestión de One-Time Prekeys (OPK) para la inicialización de sesiones.
+    - Manejo de llaves públicas y privadas
     - Almacenamiento seguro de las claves públicas de los usuarios en el servidor para su distribución.
     - Solicitud de claves públicas de otros usuarios al servidor.
   
@@ -134,10 +131,10 @@ Medidas de protección de datos en reposo y transporte:
 
   - **Encriptación**:
 
-    - Mensajes en tránsito: Cifrado de extremo a extremo (E2EE) con el Protocolo Signal. Los mensajes son cifrados por el cliente remitente y solo pueden ser descifrados por el cliente receptor. El servidor solo ve datos cifrados.
+    - Mensajes en tránsito: Cifrado de extremo a extremo (E2EE). Los mensajes son cifrados por el cliente remitente y solo pueden ser descifrados por el cliente receptor. El servidor solo ve datos cifrados.
     - Mensajes en reposo (servidor): Los mensajes asíncronos (los que esperan por un usuario desconectado) se almacenan en MongoDB Atlas ya encriptados por el E2EE, lo que significa que el servidor no tiene acceso al texto plano.
     - Contraseñas de usuario: Las contraseñas de usuario se almacenan como hashes criptográficos seguros (con salt) en la base de datos, nunca en texto plano.
-    - Claves privadas: Las claves privadas de los usuarios (privateIdentityKey, privateSignedPrekey, oneTimePrekeys[i].privateKey) no se almacenan en el servidor. Permanecen exclusivamente en el dispositivo del usuario, reforzando el E2EE.
+    - Claves privadas: Las claves privadas de los usuarios no se almacenan en el servidor. Permanecen exclusivamente en el dispositivo del usuario, reforzando el E2EE.
 
   - **Hashing**: Se utilizará hashing criptográfico (bcrypt) para el almacenamiento seguro de las contraseñas de los usuarios.
 
@@ -161,7 +158,7 @@ Medidas de protección de datos en reposo y transporte:
 
    - **Concientización (Awareness) y Formación del Equipo**:
 
-     - Capacitación del equipo de desarrollo sobre los principios del Protocolo Signal y la importancia del E2EE.
+     - Capacitación del equipo de desarrollo sobre la importancia del E2EE.
      - Énfasis en la seguridad del código (ej. prevención de inyección SQL, XSS, etc., aunque no directamente relacionados con el E2EE, son cruciales para la seguridad general).
      - Concientización sobre la importancia de la gestión de credenciales y la seguridad de los entornos de desarrollo.
 
