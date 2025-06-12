@@ -94,9 +94,8 @@ La aplicación tiene los siguientes flujos:
 
 <img width="590" alt="image" src="https://github.com/user-attachments/assets/7cefde76-88f4-4fd3-99c2-4f480ff3b6c5" />
 
-## Requerimientos de Proyecto:
 
-1. Requerimientos de Funcionalidad
+## 1. Requerimientos de Funcionalidad
 
 Basado en la descripción de la primera entrega, estos son los requerimientos de funcionalidad:
 
