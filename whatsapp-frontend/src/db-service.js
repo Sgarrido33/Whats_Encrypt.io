@@ -1,159 +1,102 @@
-const DB_NAME = 'whatsapp-clone-crypto-db';
+const DB_NAME = 'whatsapp-clone-signal-db';
 const DB_VERSION = 1;
-let db;
+const STORE_NAME = 'signal_protocol_store';
 
+// La clave de la solución: almacenamos la promesa de la conexión, no solo la conexión.
+let dbPromise = null;
 
-function initDB() {
-  return new Promise((resolve, reject) => {
-    // Si la base de datos ya está inicializada, no hacemos nada.
-    if (db) {
-      return resolve(db);
-    }
+function getDbPromise() {
+  if (!dbPromise) {
+    console.log('[DB Service] No hay promesa de DB. Creando una nueva...');
+    dbPromise = new Promise((resolve, reject) => {
+      const request = indexedDB.open(DB_NAME, DB_VERSION);
 
-    console.log('[DB Service] Inicializando IndexedDB...');
-    const request = indexedDB.open(DB_NAME, DB_VERSION);
+      request.onerror = (event) => {
+        console.error('[DB Service] Error al abrir la base de datos:', event.target.error);
+        // Si hay un error, reseteamos la promesa para poder intentarlo de nuevo.
+        dbPromise = null;
+        reject('Error al abrir la base de datos.');
+      };
 
-    request.onerror = (event) => {
-      console.error('[DB Service] Error al abrir la base de datos:', event.target.error);
-      reject('Error al abrir la base de datos.');
-    };
+      request.onsuccess = (event) => {
+        console.log('[DB Service] Base de datos abierta exitosamente.');
+        resolve(event.target.result);
+      };
 
-    request.onsuccess = (event) => {
-      db = event.target.result;
-      console.log('[DB Service] Base de datos abierta exitosamente.');
-      resolve(db);
-    };
-
-    request.onupgradeneeded = (event) => {
-      console.log('[DB Service] Actualizando schema de la base de datos...');
-      const database = event.target.result;
-
-      // Almacén para nuestro par de claves. Usaremos un 'keyPath' fijo.
-      if (!database.objectStoreNames.contains('myKeys')) {
-        database.createObjectStore('myKeys', { keyPath: 'id' });
-      }
-
-      // Almacén para los secretos compartidos. La clave será el ID del otro usuario.
-      if (!database.objectStoreNames.contains('sharedSecrets')) {
-        database.createObjectStore('sharedSecrets', { keyPath: 'otherUserId' });
-      }
-    };
-  });
+      request.onupgradeneeded = (event) => {
+        console.log('[DB Service] Actualizando schema de la base de datos...');
+        const database = event.target.result;
+        if (!database.objectStoreNames.contains(STORE_NAME)) {
+          database.createObjectStore(STORE_NAME, { keyPath: 'key' });
+        }
+      };
+    });
+  }
+  return dbPromise;
 }
 
 /**
- * Guarda el par de claves del usuario en la base de datos.
- * @param {CryptoKeyPair} keyPair - El par de claves a guardar.
+ * Guarda un valor en el almacén de Signal.
+ * @param {string} key - La clave bajo la cual se guardará el valor.
+ * @param {any} value - El valor a guardar.
  */
-export async function saveMyKeyPair(keyPair) {
-  const database = await initDB();
-  return new Promise((resolve, reject) => {
-    // Creamos una transacción de escritura en el almacén 'myKeys'.
-    const transaction = database.transaction(['myKeys'], 'readwrite');
-    const store = transaction.objectStore('myKeys');
-    
-    // Guardamos el objeto. Usamos un ID fijo porque solo habrá un par de claves.
-    store.put({ id: 'my-key-pair', keyPair });
+export async function saveData(key, value) {
+  const db = await getDbPromise();
+  const transaction = db.transaction([STORE_NAME], 'readwrite');
+  const store = transaction.objectStore(STORE_NAME);
+  store.put({ key, value });
 
+  return new Promise((resolve, reject) => {
     transaction.oncomplete = () => {
-      console.log('[DB Service] Par de claves guardado exitosamente.');
+      console.log(`[DB Service] Dato guardado exitosamente con la clave: ${key}`);
       resolve();
     };
     transaction.onerror = (event) => {
-      console.error('[DB Service] Error al guardar el par de claves:', event.target.error);
+      console.error(`[DB Service] Error al guardar dato para la clave ${key}:`, event.target.error);
       reject(event.target.error);
     };
   });
 }
 
 /**
- * Obtiene el par de claves del usuario desde la base de datos.
- * @returns {Promise<CryptoKeyPair | null>}
+ * Obtiene un valor del almacén de Signal.
+ * @param {string} key - La clave del valor a obtener.
+ * @returns {Promise<any | null>} El valor encontrado o null.
  */
-export async function getMyKeyPair() {
-  const database = await initDB();
+export async function getData(key) {
+  const db = await getDbPromise();
+  const transaction = db.transaction([STORE_NAME], 'readonly');
+  const store = transaction.objectStore(STORE_NAME);
+  const request = store.get(key);
+  
   return new Promise((resolve, reject) => {
-    const transaction = database.transaction(['myKeys'], 'readonly');
-    const store = transaction.objectStore('myKeys');
-    const request = store.get('my-key-pair');
-
-    request.onsuccess = (event) => {
-      if (event.target.result) {
-        resolve(event.target.result.keyPair);
-      } else {
-        resolve(null); // No se encontró ningún par de claves
-      }
-    };
-    request.onerror = (event) => {
-      console.error('[DB Service] Error al obtener el par de claves:', event.target.error);
-      reject(event.target.error);
-    };
-  });
-}
-
-
-/**
- * Guarda un secreto compartido para una conversación específica.
- * @param {string} otherUserId 
- * @param {Uint8Array} secret 
- */
-export async function saveSharedSecret(otherUserId, secret) {
-  const database = await initDB();
-  return new Promise((resolve, reject) => {
-    const transaction = database.transaction(['sharedSecrets'], 'readwrite');
-    const store = transaction.objectStore('sharedSecrets');
-    store.put({ otherUserId, secret });
-
-    transaction.oncomplete = () => {
-      console.log(`[DB Service] Secreto compartido para ${otherUserId} guardado.`);
-      resolve();
-    };
-    transaction.onerror = (event) => reject(event.target.error);
+      request.onsuccess = (event) => {
+        resolve(event.target.result ? event.target.result.value : null);
+      };
+      request.onerror = (event) => {
+        console.error(`[DB Service] Error al obtener dato para la clave ${key}:`, event.target.error);
+        reject(event.target.error);
+      };
   });
 }
 
 /**
- * Obtiene un secreto compartido para una conversación específica.
- * @param {string} otherUserId 
- * @returns {Promise<Uint8Array | null>}
+ * Limpia todos los datos del almacén.
  */
-export async function getSharedSecret(otherUserId) {
-  const database = await initDB();
-  return new Promise((resolve, reject) => {
-    const transaction = database.transaction(['sharedSecrets'], 'readonly');
-    const store = transaction.objectStore('sharedSecrets');
-    const request = store.get(otherUserId);
-
-    request.onsuccess = (event) => {
-      if (event.target.result) {
-        resolve(event.target.result.secret);
-      } else {
-        resolve(null);
-      }
-    };
-    request.onerror = (event) => reject(event.target.error);
-  });
-}
-
 export async function clearAllData() {
-  const database = await initDB();
+  const db = await getDbPromise();
+  const transaction = db.transaction([STORE_NAME], 'readwrite');
+  const store = transaction.objectStore(STORE_NAME);
+  store.clear();
+
   return new Promise((resolve, reject) => {
-    const transaction = database.transaction(['myKeys', 'sharedSecrets'], 'readwrite');
-    
     transaction.oncomplete = () => {
-      console.log('[DB Service] Todos los almacenes han sido limpiados.');
+      console.log('[DB Service] Almacén de Signal limpiado exitosamente.');
       resolve();
     };
-    
     transaction.onerror = (event) => {
-      console.error('[DB Service] Error al limpiar los almacenes:', event.target.error);
+      console.error('[DB Service] Error al limpiar el almacén:', event.target.error);
       reject(event.target.error);
     };
-
-    const myKeysStore = transaction.objectStore('myKeys');
-    myKeysStore.clear();
-
-    const sharedSecretsStore = transaction.objectStore('sharedSecrets');
-    sharedSecretsStore.clear();
   });
 }

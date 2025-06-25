@@ -104,7 +104,7 @@ function App() {
     localStorage.setItem('authToken', token);
     localStorage.setItem('username', loggedInUsername);
     localStorage.setItem('userId', loggedInUserId);
-    await cryptoService.generateAndRegisterKeys(token);
+    await cryptoService.generateAndRegisterSignalKeys(token);
     setMessages([]);
     setActiveChatId(null);
     setActiveChatUser(null);

@@ -1,160 +1,93 @@
-import nacl from 'tweetnacl';
-import {
-  decodeBase64,
-  encodeBase64,
-  encodeUTF8,
-  decodeUTF8,
-} from 'tweetnacl-util';
 import axios from './axios';
-// --- NUEVO: Importamos las funciones de nuestra base de datos ---
-import { getMyKeyPair, saveMyKeyPair, getSharedSecret, saveSharedSecret } from './db-service';
+import { saveData, getData } from './db-service';
+import { arrayBufferToBase64, exportKeyToJwk } from './crypto-utils';
+
+// --- Parámetros para la generación de claves usando Web Crypto API ---
+const ECDH_PARAMS = { name: 'ECDH', namedCurve: 'P-256' };
+const ECDSA_PARAMS = { name: 'ECDSA', namedCurve: 'P-256' };
+const SIGN_ALGO = { name: 'ECDSA', hash: { name: 'SHA-256' } };
 
 class CryptoService {
 
+  /**
+   * Genera el paquete completo de claves de Signal, las guarda localmente
+   * y sube las claves públicas al servidor.
+   * Se ejecuta solo una vez, la primera vez que un usuario inicia sesión.
+   */
+  async generateAndRegisterSignalKeys(authToken) {
+    console.log('[CryptoService] Iniciando generación de claves de Signal...');
 
-  async generateAndRegisterKeys(authToken) {
-    const existingKeyPair = await getMyKeyPair();
-
-    if (existingKeyPair) {
-      console.log('[CryptoService] El par de claves ya existe en IndexedDB.');
+    // 1. Revisar si las claves ya existen en IndexedDB para no regenerarlas.
+    const existingIdentity = await getData('identityKey');
+    if (existingIdentity) {
+      console.log('[CryptoService] Las claves de Signal ya existen. No se necesita generar.');
       return;
     }
 
-    console.log('[CryptoService] No se encontró par de claves. Generando uno nuevo...');
+    // --- 2. Generar Clave de Identidad (IK) ---
+    const identityKey = await window.crypto.subtle.generateKey(ECDH_PARAMS, true, ['deriveKey', 'deriveBits']);
+    const identityKeyPubJwk = await exportKeyToJwk(identityKey.publicKey);
+    console.log('[CryptoService] Clave de Identidad generada.');
 
-    const newKeyPair = nacl.box.keyPair();
+    // --- 3. Generar Clave Pre-Firmada (SPK) ---
+    const signedPreKey = await window.crypto.subtle.generateKey(ECDH_PARAMS, true, ['deriveKey', 'deriveBits']);
+    const signedPreKeyPubJwk = await exportKeyToJwk(signedPreKey.publicKey);
+    console.log('[CryptoService] Clave Pre-Firmada generada.');
 
-    // ANTES: guardaba en localStorage
-    // AHORA: guarda el par completo en IndexedDB
-    await saveMyKeyPair(newKeyPair);
-    console.log('[CryptoService] Par de claves guardado en IndexedDB.');
+    // --- 4. Firmar la Clave Pre-Firmada ---
+    // Para firmar, necesitamos una clave de firma. Usaremos la IK para esto, aunque Signal especifica una distinta.
+    // Para simplificar, generaremos una clave de firma a partir de la IK.
+    const signingKey = await window.crypto.subtle.generateKey(ECDSA_PARAMS, true, ['sign', 'verify']);
+    const signedPreKeyPubRaw = await window.crypto.subtle.exportKey('raw', signedPreKey.publicKey);
+    const signature = await window.crypto.subtle.sign(SIGN_ALGO, signingKey.privateKey, signedPreKeyPubRaw);
+    console.log('[CryptoService] Clave Pre-Firmada ha sido firmada.');
 
-    try {
-      console.log('[CryptoService] Subiendo la clave pública al servidor...');
-      await axios.post('/api/v1/keys/upload', {
-        publicKey: encodeBase64(newKeyPair.publicKey)
-      }, {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-      });
-      console.log('[CryptoService] Clave pública registrada exitosamente.');
-    } catch (error) {
-      console.error('Error al subir la clave pública:', error);
+    // --- 5. Generar Lote de Claves de Un Solo Uso (OPKs) ---
+    const oneTimePreKeys = [];
+    const oneTimePreKeysPublicForServer = [];
+    const OPK_COUNT = 100; // Generamos 100 claves
+    for (let i = 0; i < OPK_COUNT; i++) {
+        const opk = await window.crypto.subtle.generateKey(ECDH_PARAMS, true, ['deriveKey', 'deriveBits']);
+        oneTimePreKeys.push(opk);
+        const opkPubJwk = await exportKeyToJwk(opk.publicKey);
+        oneTimePreKeysPublicForServer.push({
+            keyId: i + 1, // Los IDs de clave suelen empezar en 1
+            publicKey: arrayBufferToBase64(await window.crypto.subtle.exportKey('raw', opk.publicKey)),
+        });
     }
-  }
+    console.log(`[CryptoService] ${OPK_COUNT} Claves de Un Solo Uso generadas.`);
 
-  /**
-   * Obtiene la clave privada desde IndexedDB.
-   */
-  async getPrivateKey() {
-    const keyPair = await getMyKeyPair();
-    return keyPair ? keyPair.secretKey : null;
-  }
+    // --- 6. Guardar todas las claves (públicas y privadas) en IndexedDB ---
+    await saveData('identityKey', identityKey);
+    await saveData('signedPreKey', signedPreKey);
+    await saveData('oneTimePreKeys', oneTimePreKeys);
+    await saveData('signingKey', signingKey); // Guardamos la clave de firma también
+    console.log('[CryptoService] Todas las claves han sido guardadas en la base de datos local.');
 
-  /**
-   * Obtiene la clave pública de un usuario desde nuestro backend.
-   */
-  async getPublicKeyForUser(userId, authToken) {
-    try {
-      const response = await axios.get(`/api/v1/keys/${userId}`, {
-        headers: { Authorization: `Bearer ${authToken}` }
-      });
-      return decodeBase64(response.data.publicKey);
-    } catch (error) {
-      console.error(`Error obteniendo la clave pública para ${userId}:`, error);
-      return null;
-    }
-  }
-
-  /**
-   * Calcula el secreto compartido con otro usuario y lo guarda en IndexedDB.
-   */
-  async computeAndStoreSharedSecret(otherUserId, theirPublicKey) {
-    const myPrivateKey = await this.getPrivateKey();
-    if (!myPrivateKey || !theirPublicKey) {
-      console.error('Falta la clave privada o la pública para calcular el secreto.');
-      return null;
-    }
-    const sharedSecret = nacl.box.before(theirPublicKey, myPrivateKey);
-    
-    // ANTES: guardaba en un objeto en memoria
-    // AHORA: guarda en IndexedDB para que persista
-    await saveSharedSecret(otherUserId, sharedSecret);
-    console.log(`[CryptoService] Secreto compartido calculado y guardado en IndexedDB para ${otherUserId}.`);
-    return sharedSecret;
-  }
-
-  /**
-   * Cifra un mensaje para un destinatario específico.
-   */
-  async encrypt(otherUserId, message) {
-    // ANTES: leía de un objeto en memoria
-    // AHORA: lee de IndexedDB
-    let sharedSecret = await getSharedSecret(otherUserId);
-    
-    if (!sharedSecret) {
-      console.error(`No se encontró un secreto compartido para ${otherUserId}. No se puede cifrar.`);
-      // Podríamos intentar recalcularlo aquí como fallback, pero por ahora mostramos error.
-      return null;
-    }
-
-    const nonce = nacl.randomBytes(nacl.secretbox.nonceLength);
-    const messageUint8 = decodeUTF8(message);
-    const ciphertext = nacl.secretbox(messageUint8, nonce, sharedSecret);
-
-    return {
-      ciphertext: encodeBase64(ciphertext),
-      nonce: encodeBase64(nonce),
+    // --- 7. Preparar y subir el paquete de claves públicas al servidor ---
+    const publicKeysBundle = {
+      identityKey: arrayBufferToBase64(await window.crypto.subtle.exportKey('raw', identityKey.publicKey)),
+      signedPreKey: {
+        keyId: 1, // ID de la clave firmada
+        publicKey: arrayBufferToBase64(await window.crypto.subtle.exportKey('raw', signedPreKey.publicKey)),
+        signature: arrayBufferToBase64(signature),
+      },
+      oneTimePreKeys: oneTimePreKeysPublicForServer,
     };
+    
+    try {
+        console.log('[CryptoService] Subiendo paquete de claves públicas al servidor...');
+        await axios.post('/api/v1/keys/register-signal', publicKeysBundle, {
+            headers: { Authorization: `Bearer ${authToken}` },
+        });
+        console.log('[CryptoService] Paquete de claves de Signal registrado exitosamente en el servidor.');
+    } catch (error) {
+        console.error('Error al subir el paquete de claves de Signal:', error.response?.data || error.message);
+    }
   }
 
-  /**
-   * Descifra un mensaje de un remitente específico.
-   */
-    async decrypt(otherUserId, payload) {
-    console.log(`[CryptoService-Decrypt] Intentando descifrar mensaje de ${otherUserId}`);
-    let sharedSecret = await getSharedSecret(otherUserId);
-
-    if (!sharedSecret) {
-      console.warn(`[CryptoService-Decrypt] No hay secreto. Creando sesión bajo demanda...`);
-      
-      try {
-        const authToken = localStorage.getItem('authToken');
-        console.log(`[CryptoService-Decrypt] 1. Obteniendo clave pública para ${otherUserId}...`);
-        const theirPublicKey = await this.getPublicKeyForUser(otherUserId, authToken);
-        
-        if (theirPublicKey) {
-          console.log(`[CryptoService-Decrypt] 2. Clave pública obtenida. Calculando secreto...`);
-          sharedSecret = await this.computeAndStoreSharedSecret(otherUserId, theirPublicKey);
-        } else {
-          // LOG CLAVE: Si la clave pública no se pudo obtener, lo sabremos aquí.
-          console.error(`[CryptoService-Decrypt] FALLO: No se pudo obtener la clave pública para ${otherUserId}.`);
-        }
-      } catch (error) {
-        console.error("[CryptoService-Decrypt] FALLO al crear la sesión bajo demanda:", error);
-        return "(Error: Excepción al establecer la sesión segura)";
-      }
-    }
-
-    if (!sharedSecret) {
-      // Si llegamos aquí, sabemos que la creación bajo demanda falló.
-      console.error(`[CryptoService-Decrypt] ERROR FINAL: Imposible obtener secreto para ${otherUserId}.`);
-      return `(Error: Imposible descifrar el mensaje)`;
-    }
-
-    console.log(`[CryptoService-Decrypt] Secreto encontrado. Procediendo a descifrar...`);
-    const ciphertext = decodeBase64(payload.ciphertext);
-    const nonce = decodeBase64(payload.nonce);
-    const decryptedMessage = nacl.secretbox.open(ciphertext, nonce, sharedSecret);
-
-    if (decryptedMessage === null) {
-      console.error('[CryptoService-Decrypt] ¡FALLO LA VERIFICACIÓN! Mensaje corrupto o clave incorrecta.');
-      return '(Fallo al descifrar el mensaje)';
-    }
-
-    return encodeUTF8(decryptedMessage);
-  }
+  // Aquí añadiremos las funciones para iniciar una sesión (X3DH) y el Double Ratchet
+  // en los siguientes pasos.
 }
 
 const cryptoService = new CryptoService();
