@@ -112,18 +112,44 @@ class CryptoService {
   /**
    * Descifra un mensaje de un remitente específico.
    */
-  async decrypt(otherUserId, payload) {
-    const sharedSecret = await getSharedSecret(otherUserId);
+    async decrypt(otherUserId, payload) {
+    console.log(`[CryptoService-Decrypt] Intentando descifrar mensaje de ${otherUserId}`);
+    let sharedSecret = await getSharedSecret(otherUserId);
+
     if (!sharedSecret) {
-      console.error(`No se encontró un secreto compartido para ${otherUserId}. No se puede descifrar.`);
-      return `(Error: No se encontró la clave de sesión para este mensaje)`;
+      console.warn(`[CryptoService-Decrypt] No hay secreto. Creando sesión bajo demanda...`);
+      
+      try {
+        const authToken = localStorage.getItem('authToken');
+        console.log(`[CryptoService-Decrypt] 1. Obteniendo clave pública para ${otherUserId}...`);
+        const theirPublicKey = await this.getPublicKeyForUser(otherUserId, authToken);
+        
+        if (theirPublicKey) {
+          console.log(`[CryptoService-Decrypt] 2. Clave pública obtenida. Calculando secreto...`);
+          sharedSecret = await this.computeAndStoreSharedSecret(otherUserId, theirPublicKey);
+        } else {
+          // LOG CLAVE: Si la clave pública no se pudo obtener, lo sabremos aquí.
+          console.error(`[CryptoService-Decrypt] FALLO: No se pudo obtener la clave pública para ${otherUserId}.`);
+        }
+      } catch (error) {
+        console.error("[CryptoService-Decrypt] FALLO al crear la sesión bajo demanda:", error);
+        return "(Error: Excepción al establecer la sesión segura)";
+      }
     }
 
+    if (!sharedSecret) {
+      // Si llegamos aquí, sabemos que la creación bajo demanda falló.
+      console.error(`[CryptoService-Decrypt] ERROR FINAL: Imposible obtener secreto para ${otherUserId}.`);
+      return `(Error: Imposible descifrar el mensaje)`;
+    }
+
+    console.log(`[CryptoService-Decrypt] Secreto encontrado. Procediendo a descifrar...`);
     const ciphertext = decodeBase64(payload.ciphertext);
     const nonce = decodeBase64(payload.nonce);
     const decryptedMessage = nacl.secretbox.open(ciphertext, nonce, sharedSecret);
 
     if (decryptedMessage === null) {
+      console.error('[CryptoService-Decrypt] ¡FALLO LA VERIFICACIÓN! Mensaje corrupto o clave incorrecta.');
       return '(Fallo al descifrar el mensaje)';
     }
 

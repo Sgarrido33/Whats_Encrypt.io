@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'; 
-import './Chat.css';
+import React, { useState, useEffect, useRef } from 'react';
 import { Avatar, IconButton } from '@mui/material';
 import SearchOutlined from '@mui/icons-material/SearchOutlined';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
@@ -8,11 +7,14 @@ import InsertEmoticonIcon from '@mui/icons-material/InsertEmoticonOutlined';
 import MicIcon from '@mui/icons-material/MicOutlined';
 import axios from './axios';
 import cryptoService from './crypto-service';
+import './Chat.css';
 
-function Chat({ messages, socket, userName, chatUser, conversationId, otherUserId }) {
+// El componente ahora recibe 'isSessionReady' para controlar el estado del formulario
+function Chat({ messages, userName, chatUser, conversationId, otherUserId, isSessionReady }) {
   const [input, setInput] = useState("");
-  const messagesEndRef = useRef(null); 
+  const messagesEndRef = useRef(null);
 
+  // Efecto para hacer scroll hacia abajo cada vez que llegan mensajes nuevos
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
@@ -22,30 +24,32 @@ function Chat({ messages, socket, userName, chatUser, conversationId, otherUserI
   const sendMessage = async (e) => {
     e.preventDefault();
 
-    if (!input || !otherUserId) return;
+    // Verificamos que haya texto y que la sesión segura esté lista
+    if (!input || !isSessionReady) {
+        console.error("No se puede enviar el mensaje: El input está vacío o la sesión segura no está lista.");
+        return;
+    }
 
-    // --- PASO 1: CIFRADO DEL MENSAJE ---
+    // Ciframos el mensaje usando el ID del otro usuario
     const encryptedPayload = await cryptoService.encrypt(otherUserId, input);
 
     if (!encryptedPayload) {
-      alert("Error: No se pudo cifrar el mensaje. La sesión segura podría no estar establecida.");
+      alert("Error: No se pudo cifrar el mensaje.");
       return;
     }
 
-    // El payload que se envía al backend ahora contiene el objeto cifrado
     const messagePayload = {
-      message: encryptedPayload, // Ya no es texto plano
+      message: encryptedPayload,
       name: userName,
       timestamp: new Date().toISOString(),
     };
 
     const token = localStorage.getItem('authToken');
     if (!token) {
-      console.error('No se encontró el token de autenticación para enviar el mensaje.');
+      console.error('No se encontró el token de autenticación.');
       return;
     }
 
-    // --- PASO 2: ENVÍO DEL PAYLOAD CIFRADO ---
     try {
       await axios.post(`/api/v1/conversations/${conversationId}/messages/new`, messagePayload, {
         headers: {
@@ -61,7 +65,6 @@ function Chat({ messages, socket, userName, chatUser, conversationId, otherUserI
     setInput("");
   };
 
-  // Un placeholder si no hay ningún chat activo seleccionado
   if (!chatUser || !conversationId) {
     return (
       <div className="chat">
@@ -76,30 +79,22 @@ function Chat({ messages, socket, userName, chatUser, conversationId, otherUserI
   return (
     <div className="chat">
       <div className="chat__header">
-        {/* Usamos la inicial del usuario para el Avatar */}
         <Avatar>{chatUser ? chatUser[0].toUpperCase() : '?'}</Avatar>
         <div className="chat__headerInfo">
           <h3>{chatUser}</h3>
           <p>Última conexión...</p>
         </div>
         <div className="chat__headerRight">
-          <IconButton>
-            <SearchOutlined />
-          </IconButton>
-          <IconButton>
-            <AttachFileIcon />
-          </IconButton>
-          <IconButton>
-            <MoreVertIcon />
-          </IconButton>
+          <IconButton><SearchOutlined /></IconButton>
+          <IconButton><AttachFileIcon /></IconButton>
+          <IconButton><MoreVertIcon /></IconButton>
         </div>
       </div>
 
       <div className="chat__body">
-        {/* Mapeamos y mostramos los mensajes (que ya llegan descifrados desde App.jsx) */}
-        {messages.map((message) => (
+        {messages.map((message, index) => (
           <p
-            key={message._id}
+            key={message._id || `msg-${index}`} // Usamos index como fallback por si acaso
             className={`chat__message ${message.name === userName ? 'chat__sent' : ''}`}
           >
             <span className="chat__name">{message.name}</span>
@@ -118,10 +113,12 @@ function Chat({ messages, socket, userName, chatUser, conversationId, otherUserI
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Escribe un mensaje cifrado"
+            // El placeholder y el estado 'disabled' ahora dependen de si la sesión está lista
+            placeholder={isSessionReady ? "Escribe un mensaje cifrado" : "Estableciendo conexión segura..."}
             type="text"
+            disabled={!isSessionReady}
           />
-          <button type="submit">
+          <button type="submit" disabled={!isSessionReady}>
             Enviar mensaje
           </button>
         </form>
