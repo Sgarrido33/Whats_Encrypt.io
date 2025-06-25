@@ -6,6 +6,7 @@ import Register from './Register';
 import Login from './Login';
 import axios from './axios';
 import cryptoService from './crypto-service';
+import { clearAllData } from './db-service';
 import './App.css';
 
 const BACKEND_URL = 'http://localhost:9000';
@@ -113,17 +114,28 @@ function App() {
 
   const handleRegisterSuccess = () => setShowLogin(true);
 
-  const handleLogout = () => {
+  const handleLogout = async () => { // <
+    try {
+      await clearAllData(); // 
+      console.log("[App.js] Datos de IndexedDB eliminados exitosamente.");
+    } catch (error) {
+      console.error("[App.js] Error al limpiar la base de datos al cerrar sesión:", error);
+    }
+
     localStorage.clear();
     setIsLoggedIn(false);
     setUserName('');
-    currentUserId.current = null; 
+    currentUserId.current = null;
     setShowLogin(true);
     setMessages([]);
     setActiveChatId(null);
     setActiveChatUser(null);
     setActiveChatOtherUserId(null);
     setIsSessionReady(false);
+
+    if (socket) {
+      socket.disconnect();
+    }
   };
 
   const selectChat = async (conversationId, chatUser, otherUserId) => {

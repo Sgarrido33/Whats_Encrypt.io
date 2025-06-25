@@ -184,6 +184,38 @@ app.get('/api/v1/keys/:userId', protect, async (req, res) => {
     res.status(500).json({ message: 'Error interno del servidor al obtener la clave.' });
   }
 });
+app.get('/api/v1/keys/signal/:userId', protect, async (req, res) => {
+  const targetUserId = req.params.userId;
+
+  try {
+    const keyBundleDocument = await SignalKey.findOne({ userId: targetUserId });
+
+    if (!keyBundleDocument) {
+      return res.status(404).json({ message: 'No se encontró el paquete de claves para este usuario.' });
+    }
+
+    const oneTimePreKey = keyBundleDocument.oneTimePreKeys.pop();
+    
+    if (!oneTimePreKey) {
+        return res.status(500).json({ message: 'El usuario no tiene más claves de un solo uso disponibles.' });
+    }
+    
+    await keyBundleDocument.save();
+
+    const responseBundle = {
+      userId: keyBundleDocument.userId,
+      identityKey: keyBundleDocument.identityKey,
+      signedPreKey: keyBundleDocument.signedPreKey,
+      oneTimePreKey: oneTimePreKey 
+    };
+
+    res.status(200).json(responseBundle);
+
+  } catch (error) {
+    console.error('Error al obtener el paquete de claves de Signal:', error);
+    res.status(500).json({ message: 'Error interno del servidor al obtener las claves.' });
+  }
+});
 
 app.get('/api/v1/conversations', protect, async (req, res) => {
     try {
@@ -227,6 +259,36 @@ app.get("/api/v1/conversations/:conversationId/messages", protect, async (req, r
   } catch (err) {
     console.error("Error al obtener mensajes de conversación:", err);
     res.status(500).send(err);
+  }
+});
+
+app.post('/api/v1/keys/register-signal', protect, async (req, res) => {
+  const currentUserId = req.user;
+  
+  const { identityKey, signedPreKey, oneTimePreKeys } = req.body;
+
+  if (!identityKey || !signedPreKey || !oneTimePreKeys) {
+    return res.status(400).json({ message: 'Faltan datos en el paquete de claves.' });
+  }
+
+  try {
+    const keyData = {
+      userId: currentUserId,
+      identityKey: identityKey,
+      signedPreKey: signedPreKey,
+      oneTimePreKeys: oneTimePreKeys,
+    };
+
+    await SignalKey.findOneAndUpdate(
+      { userId: currentUserId }, 
+      keyData,                  
+      { upsert: true, new: true } 
+    );
+
+    res.status(201).json({ message: 'Paquete de claves de Signal almacenado exitosamente.' });
+  } catch (error) {
+    console.error('Error al guardar el paquete de claves de Signal:', error);
+    res.status(500).json({ message: 'Error interno del servidor al guardar las claves.' });
   }
 });
 

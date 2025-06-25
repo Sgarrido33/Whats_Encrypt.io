@@ -134,3 +134,26 @@ export async function getSharedSecret(otherUserId) {
     request.onerror = (event) => reject(event.target.error);
   });
 }
+
+export async function clearAllData() {
+  const database = await initDB();
+  return new Promise((resolve, reject) => {
+    const transaction = database.transaction(['myKeys', 'sharedSecrets'], 'readwrite');
+    
+    transaction.oncomplete = () => {
+      console.log('[DB Service] Todos los almacenes han sido limpiados.');
+      resolve();
+    };
+    
+    transaction.onerror = (event) => {
+      console.error('[DB Service] Error al limpiar los almacenes:', event.target.error);
+      reject(event.target.error);
+    };
+
+    const myKeysStore = transaction.objectStore('myKeys');
+    myKeysStore.clear();
+
+    const sharedSecretsStore = transaction.objectStore('sharedSecrets');
+    sharedSecretsStore.clear();
+  });
+}
