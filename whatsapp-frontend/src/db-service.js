@@ -1,3 +1,5 @@
+// --- Versión corregida y robusta para manejar la conexión de IndexedDB ---
+
 const DB_NAME = 'whatsapp-clone-signal-db';
 const DB_VERSION = 1;
 const STORE_NAME = 'signal_protocol_store';

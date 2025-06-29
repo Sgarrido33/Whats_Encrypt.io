@@ -1,14 +1,14 @@
 const mongoose = require('mongoose');
 
-const messageSchema = mongoose.Schema({
+const messageSchema = new mongoose.Schema({
     conversationId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Conversation', 
       required: true,
     },
     message: {
-      ciphertext: String,
-      nonce: String,
+      type: mongoose.Schema.Types.Mixed,
+      required: true,
     },
     name: String, 
     senderId: { 

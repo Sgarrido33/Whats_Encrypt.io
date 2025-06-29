@@ -24,9 +24,6 @@ function App() {
   const [activeChatUser, setActiveChatUser] = useState(null);
   const [activeChatOtherUserId, setActiveChatOtherUserId] = useState(null);
   
-  // NUEVO: Estado para controlar si la sesión segura está lista para enviar mensajes
-  const [isSessionReady, setIsSessionReady] = useState(false);
-  
   const currentUserId = useRef(null);
 
   // Efecto para restaurar la sesión del usuario desde localStorage
@@ -81,9 +78,10 @@ function App() {
     const messageListener = (newMessage) => {
       console.log("[App.js] Evento 'message' recibido del servidor:", newMessage);
       
-      if (activeChatId && activeChatOtherUserId && newMessage.conversationId?.toString() === activeChatId.toString()) {
+      if (activeChatId && newMessage.conversationId?.toString() === activeChatId.toString() && newMessage.senderId !== currentUserId.current) {
           (async () => {
-              const decryptedText = await cryptoService.decrypt(activeChatOtherUserId, newMessage.message);
+              console.log('[Socket] Mensaje recibido de OTRA persona. Descifrando...');
+              const decryptedText = await cryptoService.decryptECIES(newMessage.message);
               const messageWithDecryptedText = { ...newMessage, message: decryptedText };
               setMessages((prevMessages) => [...prevMessages, messageWithDecryptedText]);
           })();
@@ -109,7 +107,6 @@ function App() {
     setActiveChatId(null);
     setActiveChatUser(null);
     setActiveChatOtherUserId(null);
-    setIsSessionReady(false); // Reiniciamos el estado de la sesión
   };
 
   const handleRegisterSuccess = () => setShowLogin(true);
@@ -131,7 +128,6 @@ function App() {
     setActiveChatId(null);
     setActiveChatUser(null);
     setActiveChatOtherUserId(null);
-    setIsSessionReady(false);
 
     if (socket) {
       socket.disconnect();
@@ -139,47 +135,49 @@ function App() {
   };
 
   const selectChat = async (conversationId, chatUser, otherUserId) => {
-      // 1. Al seleccionar un chat, marcamos la sesión como NO lista
-      setIsSessionReady(false);
-      
-      setActiveChatId(conversationId);
-      setActiveChatUser(chatUser);
-      setActiveChatOtherUserId(otherUserId);
-      setMessages([]);
+    // 1. Establecemos la información del chat activo en el estado de la App
+    setActiveChatId(conversationId);
+    setActiveChatUser(chatUser);
+    setActiveChatOtherUserId(otherUserId);
+    setMessages([]); // Limpiamos los mensajes del chat anterior mientras cargan los nuevos
 
-      try {
-        const token = localStorage.getItem('authToken');
-        
-        const theirPublicKey = await cryptoService.getPublicKeyForUser(otherUserId, token);
-        if (theirPublicKey) {
-          await cryptoService.computeAndStoreSharedSecret(otherUserId, theirPublicKey);
-          
-          // 2. Solo después de que se guarda el secreto, marcamos la sesión como LISTA
-          setIsSessionReady(true);
-          console.log("[App.js] Sesión segura lista para enviar mensajes.");
+    console.log(`[App.js] Abriendo chat con ${chatUser}. Cargando historial...`);
+
+    try {
+      // 2. Obtenemos el historial de mensajes de la API
+      const token = localStorage.getItem('authToken');
+      const response = await axios.get(`/api/v1/conversations/${conversationId}/messages`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      // 3. Desciframos cada mensaje del historial en paralelo
+      const decryptedHistory = await Promise.all(
+        response.data.map(async (msg) => {
+          // Usamos nuestra nueva función de descifrado ECIES
+          const decryptedText = await cryptoService.decryptECIES(msg.message);
+          // Devolvemos el mensaje con el texto ya descifrado
+          return { ...msg, message: decryptedText };
+        })
+      );
+
+      // 4. Actualizamos el estado con los mensajes descifrados
+      setMessages(decryptedHistory);
+      console.log('[App.js] Historial de mensajes cargado y descifrado.');
+
+      // 5. Nos unimos a la sala de Socket.IO para recibir mensajes en tiempo real
+      if (socket) {
+        // Si estábamos en otra sala, la abandonamos primero
+        if (activeChatId) {
+            socket.emit('leaveRoom', activeChatId);
         }
-
-        const response = await axios.get(`/api/v1/conversations/${conversationId}/messages`, {
-            headers: { Authorization: `Bearer ${token}` },
-        });
-
-        const decryptedHistory = await Promise.all(response.data.map(async (msg) => {
-            const decryptedText = await cryptoService.decrypt(otherUserId, msg.message);
-            return { ...msg, message: decryptedText };
-        }));
-
-        setMessages(decryptedHistory);
-
-        if (socket) {
-            if (activeChatId) socket.emit('leaveRoom', activeChatId); 
-            socket.emit('joinRoom', conversationId);
-        }
-      } catch (error) {
-        console.error('Error al cargar la conversación:', error);
-        setIsSessionReady(false); 
-        setMessages([]); 
+        socket.emit('joinRoom', conversationId);
       }
+    } catch (error) {
+      console.error('Error al cargar la conversación:', error);
+      setMessages([]); // En caso de error, dejamos los mensajes vacíos
+    }
   };
+
 
   if (!isLoggedIn) {
     return (
@@ -210,7 +208,7 @@ function App() {
             chatUser={activeChatUser} 
             conversationId={activeChatId} 
             otherUserId={activeChatOtherUserId}
-            isSessionReady={isSessionReady}
+            setMessages={setMessages}
           />
         ) : (
           <div className="chat__placeholder">

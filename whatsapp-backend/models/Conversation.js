@@ -7,8 +7,6 @@ const conversationSchema = new mongoose.Schema({
     required: true,
   }],
 
-
- 
   lastMessage: {
     type: mongoose.Schema.Types.Mixed,
     default: null,
@@ -25,7 +23,7 @@ const conversationSchema = new mongoose.Schema({
   timestamps: true 
 });
 
-conversationSchema.index({ participants: 1 }, { unique: true });
+conversationSchema.index({ participants: 1 });
 
 const Conversation = mongoose.model('Conversation', conversationSchema);
 
