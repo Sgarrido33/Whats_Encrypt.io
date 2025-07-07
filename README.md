@@ -141,19 +141,24 @@ Sonarqube hace un rakning para representar el riesgo de las vulnerabilidades del
 - **Reporte de métricas Sonarqube**
 
 <img width="699" alt="image" src="https://github.com/user-attachments/assets/349c56b5-736e-4968-9572-7cc6455ceb98" />
-    Se encontro lo siguiente:
-        - Las vulnerabilidades en seguridad se enfocan directamente en la conexion con el backend:
-        Sonarqube también nos permite monitorear el progreso y desarrollo, muestra el tiempo desde que se detecto la vulnerabilidad así como el tiempo estimado para solucionarlo.
-        <img width="710" alt="image" src="https://github.com/user-attachments/assets/2efba513-5861-4c05-9649-bb06fa6df968" />
+    
+Se encontro lo siguiente:
+- Las vulnerabilidades en seguridad se enfocan directamente en la conexion con el backend:
+- Sonarqube también nos permite monitorear el progreso y desarrollo, muestra el tiempo desde que se detecto la vulnerabilidad así como el tiempo estimado para solucionarlo.
+
+<img width="710" alt="image" src="https://github.com/user-attachments/assets/2efba513-5861-4c05-9649-bb06fa6df968" />
 
 - Además Sonarqube detalla cada vulnerabilidad explicando que se debe hacer para resolver y enmarca las líneas de código de la vulnerabilidad.
-        <img width="756" alt="image" src="https://github.com/user-attachments/assets/ed7eaf79-a67a-402c-8ab9-eb0442126714" />
+
+<img width="756" alt="image" src="https://github.com/user-attachments/assets/ed7eaf79-a67a-402c-8ab9-eb0442126714" />
 
 En este caso el riesgo detectado fue en el servidor, en la forma que configuramos CORS, permitiendo acceso desde cualquier dominio. Esto permite que un sitio web malicioso ignore las restricciones de seguridad del navegador y robe datos sensibles.
-        <img width="456" alt="image" src="https://github.com/user-attachments/assets/5bb54927-4bc0-48ad-b956-9b3ead76dc61" />
+
+<img width="456" alt="image" src="https://github.com/user-attachments/assets/5bb54927-4bc0-48ad-b956-9b3ead76dc61" />
 
 - A continuación esta la solución propuesta por Sonarqube basado en el análisis del código estático.
-         <img width="735" alt="image" src="https://github.com/user-attachments/assets/e0c133b1-509d-4dee-8c2b-ce88577b47d1" />
+
+<img width="735" alt="image" src="https://github.com/user-attachments/assets/e0c133b1-509d-4dee-8c2b-ce88577b47d1" />
 
 
 
