@@ -320,7 +320,25 @@ En este caso el riesgo detectado fue en el servidor, en la forma que configuramo
 
 **Para la segunda entrega del proyecto se plantearon las siguientes tareas:**
 - Realizar un análisis de la implementación basada basada en herramientas especializadas, elegimos Sonarqube.
-- Implementar el protocolo ECIES para el esquema de seguridad.
+- Implementar un protocolo personalizado basado ECIES para el esquema de seguridad.
+
+### Protocolo de Cifrado Implementado
+
+En lugar de Signal completo, el proyecto emplea:
+
+1. **ECIES personalizado (ECIES_V1)**  
+   - Curva ECDH P‑256 para generar claves efímeras por mensaje.  
+   - Derivación de clave AES‑GCM (256 bits) mediante HKDF.  
+   - Empaquetado del payload `{ type: 'ECIES_V1', ephemeralPublicKey, iv, ciphertext }`.
+
+2. **Pre‑Key Bundle “al estilo Signal”**  
+   - Identity Key (ECDH P‑256)  
+   - Signed PreKey (ECDH P‑256 + ECDSA‑SHA256)  
+   - One‑Time PreKeys (ECDH P‑256)  
+   - Registro en servidor vía `/api/v1/keys/register-signal`.
+
+> ❗ Nota: No se realiza el handshake X3DH ni el Double Ratchet. Si se requiere el flujo completo de Signal, habría que implementar el intercambio X3DH y la capa de ratchet sobre la clave compartida.  
+
 
 **Se culminaron todas**
 
@@ -338,7 +356,7 @@ La aplicación ha sido diseñada con el principio fundamental de **restablecer l
 
 - **Prevención de abusos**: Se establecen políticas como la no retención de mensajes una vez entregados, autenticación robusta con JWT, y mecanismos para mitigar accesos no autorizados.
 
-- **Responsabilidad técnica**: Se promueve la implementación segura del protocolo Signal, incluyendo autenticación fuera de banda y análisis estático del código para detectar vulnerabilidades antes del despliegue.
+- **Responsabilidad técnica**: Se promueve la implementación segura del protocolo ECIES, incluyendo autenticación fuera de banda y análisis estático del código para detectar vulnerabilidades antes del despliegue.
 
 Estas medidas aseguran que la aplicación respeta los derechos digitales de los usuarios, cumpliendo con principios éticos de seguridad, confidencialidad y responsabilidad tecnológica.
 
