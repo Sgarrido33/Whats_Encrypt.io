@@ -318,6 +318,10 @@ En este caso el riesgo detectado fue en el servidor, en la forma que configuramo
 - Implementar el sistema de cifrado de mensajes E2EE.
 - Configuración del almacenamiento de mensajes y contraseñas con los respectivos backups(Mongodb-Atlas).
 
+**Para la segunda entrega del proyecto se plantearon las siguientes tareas:**
+- Realizar un análisis de la implementación basada basada en herramientas especializadas, elegimos Sonarqube.
+- Implementar el protocolo ECIES para el esquema de seguridad.
+
 **Se culminaron todas**
 
 ### Lecciones aprendidas y retrospectiva.
