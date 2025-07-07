@@ -324,6 +324,26 @@ En este caso el riesgo detectado fue en el servidor, en la forma que configuramo
 
 **Se culminaron todas**
 
+### Consideraciones Éticas y de Privacidad
+
+La aplicación ha sido diseñada con el principio fundamental de **restablecer la privacidad en la mensajería instantánea**, evitando la dependencia de terceros para proteger la confidencialidad de las comunicaciones. Las principales consideraciones éticas y de privacidad son:
+
+- **Privacidad por diseño**: El cifrado de extremo a extremo (E2EE) garantiza que solo el emisor y el receptor puedan acceder al contenido de los mensajes, incluso el servidor actúa únicamente como intermediario de datos cifrados.
+
+- **Autonomía del usuario**: Las claves privadas nunca se almacenan en el servidor, manteniéndose en el dispositivo del usuario. Esto da control total sobre la información compartida.
+
+- **Minimización de datos**: Se evita almacenar información sensible en texto plano (como contraseñas o mensajes). Se utilizan hashes seguros (bcrypt) y cifrado robusto para datos en tránsito y en reposo.
+
+- **Transparencia y trazabilidad**: Se registran logs de conexión y transmisión sin comprometer el contenido de los mensajes, lo que permite auditorías responsables sin violar la privacidad.
+
+- **Prevención de abusos**: Se establecen políticas como la no retención de mensajes una vez entregados, autenticación robusta con JWT, y mecanismos para mitigar accesos no autorizados.
+
+- **Responsabilidad técnica**: Se promueve la implementación segura del protocolo Signal, incluyendo autenticación fuera de banda y análisis estático del código para detectar vulnerabilidades antes del despliegue.
+
+Estas medidas aseguran que la aplicación respeta los derechos digitales de los usuarios, cumpliendo con principios éticos de seguridad, confidencialidad y responsabilidad tecnológica.
+
+
+
 ### Lecciones aprendidas y retrospectiva.
 
 **Conceptos nuevos**
