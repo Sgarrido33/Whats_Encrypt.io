@@ -129,11 +129,11 @@ Medidas de protección de datos en reposo y transporte:
 
 ### Uso de herramientas para análisis de implementación:
 - **Análisis Estático con SonarQube:**
-        - Es una plataforma de **Análisis Estático de Código (SAST - Static Application Security Testing)** y gestión de calidad de código.
-        - Nos permite analizar el código fuente sin ejecutarlo.
-        - Detecta **bugs, code smells (malas prácticas de código), y vulnerabilidades de seguridad** en tiempo real.
-        - Es conveniente si se quiere integrar funcionalidades implementadas en otros lenguajes ya que soporta múltiples lenguajes de programación (Java, C#, JavaScript, Python, PHP, etc.).
-        - Proporciona un dashboard centralizado para visualizar los resultados, tendencias y deuda técnica, permitiendo asegurar la eficiencia y escalabilidad sinc comprometer la seguridad del servidor.
+    - Es una plataforma de **Análisis Estático de Código (SAST - Static Application Security Testing)** y gestión de calidad de código.
+    - Nos permite analizar el código fuente sin ejecutarlo.
+    - Detecta **bugs, code smells (malas prácticas de código), y vulnerabilidades de seguridad** en tiempo real.
+    - Es conveniente si se quiere integrar funcionalidades implementadas en otros lenguajes ya que soporta múltiples lenguajes de programación (Java, C#, JavaScript, Python, PHP, etc.).
+    - Proporciona un dashboard centralizado para visualizar los resultados, tendencias y deuda técnica, permitiendo asegurar la eficiencia y escalabilidad sinc comprometer la seguridad del servidor.
     
 - **Detección de vulnerabilidades en seguridad:**
         - Sonarqube hace un rakning para representar el riesgo de las vulnerabilidades del proyecto desde la E a la A, vienen a ser las que generarian más alto impacto a las que generan menor impacto en la aplicación.
