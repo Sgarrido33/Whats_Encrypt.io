@@ -127,28 +127,38 @@ Medidas de protección de datos en reposo y transporte:
     - Énfasis en la seguridad del código (ej. prevención de inyección SQL, XSS, etc., aunque no directamente relacionados con el E2EE, son cruciales para la seguridad general).
     - Concientización sobre la importancia de la gestión de credenciales y la seguridad de los entornos de desarrollo.
 
-### Uso de herramientas para análisis de implementación:
-- **Análisis Estático con SonarQube:**
-    - Es una plataforma de **Análisis Estático de Código (SAST - Static Application Security Testing)** y gestión de calidad de código.
-    - Nos permite analizar el código fuente sin ejecutarlo.
-    - Detecta **bugs, code smells (malas prácticas de código), y vulnerabilidades de seguridad** en tiempo real.
-    - Es conveniente si se quiere integrar funcionalidades implementadas en otros lenguajes ya que soporta múltiples lenguajes de programación (Java, C#, JavaScript, Python, PHP, etc.).
-    - Proporciona un dashboard centralizado para visualizar los resultados, tendencias y deuda técnica, permitiendo asegurar la eficiencia y escalabilidad sinc comprometer la seguridad del servidor.
-    
-- **Detección de vulnerabilidades en seguridad:**
-Sonarqube hace un rakning para representar el riesgo de las vulnerabilidades del proyecto desde la E a la A, vienen a ser las que generarian más alto impacto a las que generan menor impacto en la aplicación.
-    
-- **Reporte de métricas Sonarqube**
+### Uso de herramientas para análisis de implementación
+
+#### **Análisis estático con SonarQube**
+
+* Se utilizó **SonarQube**, una plataforma de **Análisis Estático de Código (SAST - Static Application Security Testing)** y gestión de calidad del software.
+* Esta herramienta permite analizar el código fuente sin necesidad de ejecutarlo.
+* Detecta **errores (bugs), malas prácticas de codificación (code smells) y vulnerabilidades de seguridad** en tiempo real.
+* Resulta especialmente útil para proyectos que integran distintos lenguajes, ya que SonarQube soporta múltiples tecnologías como Java, C#, JavaScript, Python, PHP, entre otras.
+* Proporciona un panel centralizado para visualizar los resultados, identificar tendencias y calcular la deuda técnica, permitiendo mejorar la eficiencia y escalabilidad del sistema sin comprometer su seguridad.
+
+#### **Detección de vulnerabilidades de seguridad**
+
+* SonarQube asigna una calificación de riesgo a las vulnerabilidades detectadas en una escala que va de **E (riesgo crítico)** a **A (riesgo bajo)**, facilitando la priorización de soluciones según el impacto potencial en la aplicación.
+* En el análisis realizado, se identificaron vulnerabilidades principalmente en la conexión con el backend.
+
+
+
+#### **Reporte de métricas de SonarQube**
+
+* La herramienta permite monitorear el progreso del desarrollo, mostrando el tiempo transcurrido desde la detección de una vulnerabilidad, así como el tiempo estimado para su resolución.
+* Cada hallazgo incluye una explicación detallada y una propuesta de solución, destacando las líneas específicas de código involucradas.
 
 <img width="699" alt="image" src="https://github.com/user-attachments/assets/349c56b5-736e-4968-9572-7cc6455ceb98" />
     
-Se encontro lo siguiente:
-- Las vulnerabilidades en seguridad se enfocan directamente en la conexion con el backend:
-- Sonarqube también nos permite monitorear el progreso y desarrollo, muestra el tiempo desde que se detecto la vulnerabilidad así como el tiempo estimado para solucionarlo.
+>  **Ejemplo detectado:**
+> Se identificó un riesgo en el servidor debido a una configuración insegura de **CORS** (Cross-Origin Resource Sharing), que permitía el acceso desde cualquier dominio. Esta mala configuración podría permitir a sitios maliciosos evadir restricciones del navegador y acceder a datos sensibles del usuario.
+
 
 <img width="710" alt="image" src="https://github.com/user-attachments/assets/2efba513-5861-4c05-9649-bb06fa6df968" />
 
-- Además Sonarqube detalla cada vulnerabilidad explicando que se debe hacer para resolver y enmarca las líneas de código de la vulnerabilidad.
+* SonarQube sugiere correcciones específicas para este tipo de vulnerabilidades mediante recomendaciones basadas en el análisis del código estático.
+* Además Sonarqube detalla cada vulnerabilidad explicando que se debe hacer para resolver y enmarca las líneas de código de la vulnerabilidad.
 
 <img width="756" alt="image" src="https://github.com/user-attachments/assets/ed7eaf79-a67a-402c-8ab9-eb0442126714" />
 
@@ -160,6 +170,9 @@ En este caso el riesgo detectado fue en el servidor, en la forma que configuramo
 
 <img width="735" alt="image" src="https://github.com/user-attachments/assets/e0c133b1-509d-4dee-8c2b-ce88577b47d1" />
 
+- Por otro lado, Sonarqube detecta de bugs así como factores de deuda técnica:
+
+<img width="671" alt="image" src="https://github.com/user-attachments/assets/583e6f5d-7498-441f-93ec-771dfe07cafe" />
 
 
     
