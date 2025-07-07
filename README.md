@@ -134,10 +134,13 @@ Medidas de protección de datos en reposo y transporte:
         - Detecta **bugs, code smells (malas prácticas de código), y vulnerabilidades de seguridad** en tiempo real.
         - Es conveniente si se quiere integrar funcionalidades implementadas en otros lenguajes ya que soporta múltiples lenguajes de programación (Java, C#, JavaScript, Python, PHP, etc.).
         - Proporciona un dashboard centralizado para visualizar los resultados, tendencias y deuda técnica, permitiendo asegurar la eficiencia y escalabilidad sinc comprometer la seguridad del servidor.
-    **Detección de vulnerabilidades en seguridad:**
+    
+**Detección de vulnerabilidades en seguridad:**
         - Sonarqube hace un rakning para representar el riesgo de las vulnerabilidades del proyecto desde la E a la A, vienen a ser las que generarian más alto impacto a las que generan menor impacto en la aplicación.
-    **Reporte de métricas Sonarqube**
-    <img width="699" alt="image" src="https://github.com/user-attachments/assets/349c56b5-736e-4968-9572-7cc6455ceb98" />
+    
+**Reporte de métricas Sonarqube**
+
+<img width="699" alt="image" src="https://github.com/user-attachments/assets/349c56b5-736e-4968-9572-7cc6455ceb98" />
     Se encontro lo siguiente:
         - Las vulnerabilidades en seguridad se enfocan directamente en la conexion con el backend:
         Sonarqube también nos permite monitorear el progreso y desarrollo, muestra el tiempo desde que se detecto la vulnerabilidad así como el tiempo estimado para solucionarlo.
