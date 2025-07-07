@@ -217,6 +217,7 @@ En este caso el riesgo detectado fue en el servidor, en la forma que configuramo
 
     
 ### **Identificación de riesgos asociados a la data**:
+
 - **Brecha de datos de credenciales (username/password):**
         - Entidades afligidas: Usuarios (cuentas comprometidas), la reputación de la aplicación.
         - Impacto: Robo de identidad, acceso no autorizado a la cuenta, uso malintencionado de la cuenta.
@@ -239,36 +240,53 @@ En este caso el riesgo detectado fue en el servidor, en la forma que configuramo
 
 ### **Plan de respuesta ante incidentes de seguridad**:
 **Detección y Notificación:** 
+
 - Monitoreo constante de logs y alertas de seguridad.
+
 - Establecimiento de un canal de notificación para usuarios (ej. correo electrónico) y un sistema de alerta interno para el equipo.
     
 **Contención:**
-        - Aislamiento de sistemas comprometidos.
-        - Revocación inmediata de tokens JWT comprometidos.
-        - Restablecimiento forzado de contraseñas de usuarios afectados.
-        - Deshabilitación temporal de funcionalidades vulnerables.
+- Aislamiento de sistemas comprometidos.
+- Revocación inmediata de tokens JWT comprometidos.
+- Restablecimiento forzado de contraseñas de usuarios afectados.
+- Deshabilitación temporal de funcionalidades vulnerables.
+
 **Erradicación:**
-        - Identificación y parcheo de la vulnerabilidad raíz.
-        - Limpieza de cualquier artefacto malicioso.
-        - Rotación de claves de API y credenciales de acceso a la base de datos.
+  
+- Identificación y parcheo de la vulnerabilidad raíz.
+- Limpieza de cualquier artefacto malicioso.
+- Rotación de claves de API y credenciales de acceso a la base de datos.
+
 **Recuperación:**
-        - Restauración de sistemas desde backups limpios (si aplica).
-        - Verificación de la integridad de los datos.
-        - Reanudación gradual de los servicios.
+
+- Restauración de sistemas desde backups limpios (si aplica).
+- Verificación de la integridad de los datos.
+- Reanudación gradual de los servicios.
+
 **Análisis Post-Incidente:**
-        - Revisión de los logs y análisis forense para entender la causa raíz y el alcance del incidente.
-        - Actualización de políticas y procedimientos de seguridad.
-        - Comunicación transparente con los usuarios afectados (si es necesario y apropiado, de acuerdo a la legislación).
+
+- Revisión de los logs y análisis forense para entender la causa raíz y el alcance del incidente.
+- Actualización de políticas y procedimientos de seguridad.
+- Comunicación transparente con los usuarios afectados (si es necesario y apropiado, de acuerdo a la legislación).
+  
 
 **Recomendaciones de protección de datos futura**:
-    - **Autenticación Multifactor (MFA)**: Implementar MFA (ej. TOTP, SMS) para el inicio de sesión de los usuarios, añadiendo una capa extra de seguridad más allá de la contraseña.
-    - **Rotación Automática de Claves (Signed Prekey, OPK)**: Automatizar la regeneración y subida de Signed Prekeys y One-Time Prekeys en el cliente a intervalos regulares, incluso si no han sido explícitamente "consumidas" por otro usuario (para mejorar la "freshness" de las claves).
-    - **Certificados de Seguridad para usuarios no registrados (Autenticación fuera de banda)**: Implementar un sistema de intercambio de certificados autofirmados (o de una CA propia, como mencionaste) para usuarios que se comunican con no registrados, fortaleciendo la autenticidad fuera del flujo de registro tradicional. Esto también podría extenderse a usuarios registrados para una verificación adicional.
-    - **Soporte de Forward Secrecy y Future Secrecy avanzado**: Asegurar que la implementación del Double Ratchet sea impecable para garantizar que una clave de sesión comprometida no revele comunicaciones pasadas (Forward Secrecy) ni futuras (Future Secrecy).
-    - **Manejo de estados de sesión persistentes**: Para evitar la dependencia excesiva de OPKs en cada interacción, una gestión robusta del estado de la sesión Diffie-Hellman en el cliente (y potencialmente con un identificador de sesión en el servidor) puede mejorar la eficiencia y robustez.
-    - **Auditorías de Seguridad Periódicas**: Contratar a terceros para realizar auditorías de seguridad y pruebas de penetración regulares del sistema para identificar y corregir vulnerabilidades.
-    - **Monitorización de Comportamiento Anómalo**: Implementar sistemas que detecten patrones de acceso inusuales o comportamientos sospechosos en la red o en las cuentas de usuario.
-    - **Controles de acceso basados en roles (RBAC)**: Si la aplicación crece para incluir roles administrativos, implementar RBAC para limitar el acceso a funcionalidades sensibles.
+
+- **Autenticación Multifactor (MFA)**: Implementar MFA (ej. TOTP, SMS) para el inicio de sesión de los usuarios, añadiendo una capa extra de seguridad más allá de la contraseña.
+
+- **Rotación Automática de Claves (Signed Prekey, OPK)**: Automatizar la regeneración y subida de Signed Prekeys y One-Time Prekeys en el cliente a intervalos regulares, incluso si no han sido explícitamente "consumidas" por otro usuario (para mejorar la "freshness" de las claves).
+
+- **Certificados de Seguridad para usuarios no registrados (Autenticación fuera de banda)**: Implementar un sistema de intercambio de certificados autofirmados (o de una CA propia, como mencionaste) para usuarios que se comunican con no registrados, fortaleciendo la autenticidad fuera del flujo de registro tradicional. Esto también podría extenderse a usuarios registrados para una verificación adicional.
+
+- **Soporte de Forward Secrecy y Future Secrecy avanzado**: Asegurar que la implementación del Double Ratchet sea impecable para garantizar que una clave de sesión comprometida no revele comunicaciones pasadas (Forward Secrecy) ni futuras (Future Secrecy).
+
+- **Manejo de estados de sesión persistentes**: Para evitar la dependencia excesiva de OPKs en cada interacción, una gestión robusta del estado de la sesión Diffie-Hellman en el cliente (y potencialmente con un identificador de sesión en el servidor) puede mejorar la eficiencia y robustez.
+
+- **Auditorías de Seguridad Periódicas**: Contratar a terceros para realizar auditorías de seguridad y pruebas de penetración regulares del sistema para identificar y corregir vulnerabilidades.
+
+- **Monitorización de Comportamiento Anómalo**: Implementar sistemas que detecten patrones de acceso inusuales o comportamientos sospechosos en la red o en las cuentas de usuario.
+
+- **Controles de acceso basados en roles (RBAC)**: Si la aplicación crece para incluir roles administrativos, implementar RBAC para limitar el acceso a funcionalidades sensibles.
 
 ## 3. Otros Requerimientos Técnicos
 
