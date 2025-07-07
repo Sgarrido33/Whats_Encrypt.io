@@ -216,24 +216,24 @@ En este caso el riesgo detectado fue en el servidor, en la forma que configuramo
 
 
     
-- **Identificación de riesgos asociados a la data**:
-    - **Brecha de datos de credenciales (username/password):**
+### **Identificación de riesgos asociados a la data**:
+- **Brecha de datos de credenciales (username/password):**
         - Entidades afligidas: Usuarios (cuentas comprometidas), la reputación de la aplicación.
         - Impacto: Robo de identidad, acceso no autorizado a la cuenta, uso malintencionado de la cuenta.
 
-    - **Compromiso de claves públicas almacenadas en el servidor:**
+- **Compromiso de claves públicas almacenadas en el servidor:**
         - Entidades afligidas: Usuarios.
         - Impacto: Interceptación del primer mensaje (antes de que el Double Ratchet entre en pleno efecto), ataques de suplantación de identidad (si no hay autenticación fuera de banda robusta).
 
-    - **Acceso no autorizado a mensajes asíncronos en MongoDB Atlas:**
+- **Acceso no autorizado a mensajes asíncronos en MongoDB Atlas:**
         - Entidades afligidas: Usuarios cuya comunicación estaba pendiente.
         - Impacto: Divulgación de metadatos del mensaje (quién envió, cuándo), pero no del contenido (debido al E2EE). Podría revelar patrones de comunicación.
 
-    - **Fuga de JWT (token de autenticación):**
+- **Fuga de JWT (token de autenticación):**
         - Entidades afligidas: Usuarios.
         - Impacto: Suplantación de identidad hasta que el token expire o sea revocado.
 
-    - **Compromiso de logs de auditoría:**
+- **Compromiso de logs de auditoría:**
         - Entidades afligidas: Usuarios, administradores.
         - Impacto: Revelación de patrones de comunicación y metadatos, dificultando futuras auditorías.
 
