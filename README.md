@@ -136,9 +136,9 @@ Medidas de protección de datos en reposo y transporte:
     - Proporciona un dashboard centralizado para visualizar los resultados, tendencias y deuda técnica, permitiendo asegurar la eficiencia y escalabilidad sinc comprometer la seguridad del servidor.
     
 - **Detección de vulnerabilidades en seguridad:**
-        - Sonarqube hace un rakning para representar el riesgo de las vulnerabilidades del proyecto desde la E a la A, vienen a ser las que generarian más alto impacto a las que generan menor impacto en la aplicación.
+Sonarqube hace un rakning para representar el riesgo de las vulnerabilidades del proyecto desde la E a la A, vienen a ser las que generarian más alto impacto a las que generan menor impacto en la aplicación.
     
-**Reporte de métricas Sonarqube**
+- **Reporte de métricas Sonarqube**
 
 <img width="699" alt="image" src="https://github.com/user-attachments/assets/349c56b5-736e-4968-9572-7cc6455ceb98" />
     Se encontro lo siguiente:
