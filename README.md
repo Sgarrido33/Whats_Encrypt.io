@@ -337,7 +337,7 @@ En lugar de Signal completo, el proyecto emplea:
    - One‑Time PreKeys (ECDH P‑256)  
    - Registro en servidor vía `/api/v1/keys/register-signal`.
 
-> ❗ Nota: No se realiza el handshake X3DH ni el Double Ratchet. Si se requiere el flujo completo de Signal, habría que implementar el intercambio X3DH y la capa de ratchet sobre la clave compartida.  
+**Nota**: No se realiza el handshake X3DH ni el Double Ratchet. Si se requiere el flujo completo de Signal, habría que implementar el intercambio X3DH y la capa de ratchet sobre la clave compartida.  
 
 
 **Se culminaron todas**
