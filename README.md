@@ -127,8 +127,8 @@ Medidas de protección de datos en reposo y transporte:
     - Énfasis en la seguridad del código (ej. prevención de inyección SQL, XSS, etc., aunque no directamente relacionados con el E2EE, son cruciales para la seguridad general).
     - Concientización sobre la importancia de la gestión de credenciales y la seguridad de los entornos de desarrollo.
 
-### 1. Uso de herramientas para análisis de implementación:
-    **Análisis Estático con SonarQube:**
+### Uso de herramientas para análisis de implementación:
+**Análisis Estático con SonarQube:**
         - Es una plataforma de **Análisis Estático de Código (SAST - Static Application Security Testing)** y gestión de calidad de código.
         - Nos permite analizar el código fuente sin ejecutarlo.
         - Detecta **bugs, code smells (malas prácticas de código), y vulnerabilidades de seguridad** en tiempo real.
@@ -143,13 +143,13 @@ Medidas de protección de datos en reposo y transporte:
         Sonarqube también nos permite monitorear el progreso y desarrollo, muestra el tiempo desde que se detecto la vulnerabilidad así como el tiempo estimado para solucionarlo.
         <img width="710" alt="image" src="https://github.com/user-attachments/assets/2efba513-5861-4c05-9649-bb06fa6df968" />
 
-        - Además Sonarqube detalla cada vulnerabilidad explicando que se debe hacer para resolver y enmarca las líneas de código de la vulnerabilidad.
+- Además Sonarqube detalla cada vulnerabilidad explicando que se debe hacer para resolver y enmarca las líneas de código de la vulnerabilidad.
         <img width="756" alt="image" src="https://github.com/user-attachments/assets/ed7eaf79-a67a-402c-8ab9-eb0442126714" />
 
-        En este caso el riesgo detectado fue en el servidor, en la forma que configuramos CORS, permitiendo acceso desde cualquier dominio. Esto permite que un sitio web malicioso ignore las restricciones de seguridad del navegador y robe datos sensibles.
+En este caso el riesgo detectado fue en el servidor, en la forma que configuramos CORS, permitiendo acceso desde cualquier dominio. Esto permite que un sitio web malicioso ignore las restricciones de seguridad del navegador y robe datos sensibles.
         <img width="456" alt="image" src="https://github.com/user-attachments/assets/5bb54927-4bc0-48ad-b956-9b3ead76dc61" />
 
-         - A continuación esta la solución propuesta por Sonarqube basado en el análisis del código estático.
+- A continuación esta la solución propuesta por Sonarqube basado en el análisis del código estático.
          <img width="735" alt="image" src="https://github.com/user-attachments/assets/e0c133b1-509d-4dee-8c2b-ce88577b47d1" />
 
 
