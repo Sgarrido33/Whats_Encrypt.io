@@ -151,8 +151,8 @@ Medidas de protección de datos en reposo y transporte:
 
 <img width="699" alt="image" src="https://github.com/user-attachments/assets/349c56b5-736e-4968-9572-7cc6455ceb98" />
     
->  **Ejemplo detectado:**
-> Se identificó un riesgo en el servidor debido a una configuración insegura de **CORS** (Cross-Origin Resource Sharing), que permitía el acceso desde cualquier dominio. Esta mala configuración podría permitir a sitios maliciosos evadir restricciones del navegador y acceder a datos sensibles del usuario.
+**Ejemplo detectado:**
+Se identificó un riesgo en el servidor debido a una configuración insegura de **CORS** (Cross-Origin Resource Sharing), que permitía el acceso desde cualquier dominio. Esta mala configuración podría permitir a sitios maliciosos evadir restricciones del navegador y acceder a datos sensibles del usuario.
 
 
 <img width="710" alt="image" src="https://github.com/user-attachments/assets/2efba513-5861-4c05-9649-bb06fa6df968" />
@@ -170,9 +170,49 @@ En este caso el riesgo detectado fue en el servidor, en la forma que configuramo
 
 <img width="735" alt="image" src="https://github.com/user-attachments/assets/e0c133b1-509d-4dee-8c2b-ce88577b47d1" />
 
-- Por otro lado, Sonarqube detecta de bugs así como factores de deuda técnica:
+#### **Detección de bugs y deuda técnica**
+
+* Además de los problemas de seguridad, SonarQube también identifica errores lógicos y otros factores que contribuyen a la **deuda técnica**, ayudando a mantener un código más limpio, mantenible y escalable.
 
 <img width="671" alt="image" src="https://github.com/user-attachments/assets/583e6f5d-7498-441f-93ec-771dfe07cafe" />
+
+### Resumen de las vulnerabilidades encontradas:
+
+### Vulnerabilidades detectadas
+
+#### whatsapp-backend/server.js
+- Inyección SQL: construye consultas directamente con datos controlados por el usuario (múltiples flujos de ejecución).  
+- Uso de encadenamiento opcional: se recomienda `?.` para mayor legibilidad.
+
+#### whatsapp-frontend/src/App.js
+- Profundidad excesiva de funciones (anidamiento > 4 niveles) en 4 ubicaciones.
+
+#### whatsapp-frontend/src/Chat.js
+- Props no validadas:  
+  `messages`, `userName`, `chatUser`, `conversationId`, `otherUserId`, `setMessages`.  
+- Uso de propiedades sin validación en iteraciones: `chatUser[].toUpperCase`, `messages.map`.
+
+#### whatsapp-frontend/src/Login.js & Register.js
+- Props no validadas:  
+  Login: `onRegisterClick`, `onLoginSuccess`.  
+  Register: `onLoginClick`, `onRegisterSuccess`.  
+- Elementos interactivos no nativos sin rol ni manejo de teclado/ratón/táctil.
+
+#### whatsapp-frontend/src/Sidebar.js
+- Imports no usados: `DonutLargeIcon`, `ChatIcon`, `MoreVertIcon`.  
+- Props no validadas: `userName`, `onLogout`, `selectChat`, `activeChatId`, `socket`.  
+- Anidamiento excesivo de funciones (> 4 niveles) en múltiples ubicaciones.  
+- Interactividad accesible: añadir roles y listeners de teclado.
+
+#### whatsapp-frontend/src/SidebarChat.js
+- Props no validadas: `otherUser`, `lastMessage`, `isActive`, `onClick`.  
+- Uso de propiedades sin validación: `otherUser[].toUpperCase`, `lastMessage.ciphertext`.  
+- Elemento interactivo no nativo: añadir rol y soporte de teclado/ratón/táctil.
+
+#### whatsapp-frontend/src/crypto-service.js
+- TODOs pendientes: completar tareas indicadas en comentarios.  
+- Variables sin usar y asignaciones inútiles:  
+  `identityKeyPubJwk`, `signedPreKeyPubJwk`, `opkPubJwk`.  
 
 
     
