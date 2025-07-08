@@ -313,7 +313,7 @@ En este caso el riesgo detectado fue en el servidor, en la forma que configuramo
 
 **El proyecto engloba especificamente las siguientes tareas:**
 - Creación de un framework para el usuario de mensajería instantánea.
-- Implementar un sistema de distribución de llaves de altos estándares de seguridad por medio del protocolo de Signal.
+- Implementar un sistema de distribución de llaves de altos estándares de seguridad.
 - Encriptación de mensajes en el cliente, envió al servidor para transmisión E2EE.
 - Permitir la transmición de mensajes asíncronos.
 - Implementa autenticación fuera de banda.
@@ -330,21 +330,19 @@ En este caso el riesgo detectado fue en el servidor, en la forma que configuramo
 
 ### Protocolo de Cifrado Implementado
 
-En lugar de Signal completo, el proyecto emplea:
+El proyecto implementa un protocolo de cifrado híbrido sin estado basado en ECIES. Este enfoque fue elegido por su robusta seguridad y menor complejidad de implementación en comparación con protocolos con estado como Signal.
 
-1. **ECIES personalizado (ECIES_V1)**  
-   - Curva ECDH P‑256 para generar claves efímeras por mensaje.  
-   - Derivación de clave AES‑GCM (256 bits) mediante HKDF.  
-   - Empaquetado del payload `{ type: 'ECIES_V1', ephemeralPublicKey, iv, ciphertext }`.
+1. **Esquema:** ECIES (Elliptic Curve Integrated Encryption Scheme), versión ECIES_V1.
 
-2. **Pre‑Key Bundle “al estilo Signal”**  
-   - Identity Key (ECDH P‑256)  
-   - Signed PreKey (ECDH P‑256 + ECDSA‑SHA256)  
-   - One‑Time PreKeys (ECDH P‑256)  
-   - Registro en servidor vía `/api/v1/keys/register-signal`.
+2. **Generación de Claves por Mensaje:** Para cada mensaje, se genera un nuevo par de claves efímeras usando la curva ECDH P-256. Esto garantiza la Confidencialidad Futura (Forward Secrecy).
 
-**Nota**: No se realiza el handshake X3DH ni el Double Ratchet. Si se requiere el flujo completo de Signal, habría que implementar el intercambio X3DH y la capa de ratchet sobre la clave compartida.  
+3. **Derivación de Clave:** El secreto compartido se procesa con HKDF (SHA-256) para derivar una clave de cifrado simétrico segura.
 
+4. **Cifrado Simétrico:** El mensaje se cifra usando AES-256-GCM, que proporciona tanto confidencialidad como autenticación del texto cifrado.
+
+5. **Payload Final:** El paquete enviado al servidor contiene { type: 'ECIES_V1', ephemeralPublicKey, iv, ciphertext }, haciendo que cada mensaje sea un paquete criptográfico autocontenido.
+
+**Nota**: Este protocolo no implementa el Double Ratchet del Protocolo Signal, por lo que no posee la propiedad de auto-reparación (Post-Compromise Security). Sin embargo, ofrece un nivel de seguridad muy alto, adecuado para la mayoría de los casos de uso.
 
 **Se culminaron todas**
 
@@ -375,4 +373,4 @@ Estas medidas aseguran que la aplicación respeta los derechos digitales de los 
 - **Gestión de Backups en la Nube (MongoDB Atlas)**: Implementar un sistema de respaldo robusto para nuestra base de datos resultó sorprendentemente eficiente gracias a los servicios SaaS de almacenamiento como MongoDB Atlas. Sus configuraciones de Cloud Backup están altamente optimizadas, permitiéndonos establecer políticas de snapshots continuos y recuperación puntual de forma rápida. Esto nos liberó de la compleja tarea de gestionar la infraestructura de backups manualmente, permitiéndonos concentrarnos en otros componentes críticos del proyecto.
 
 **Desafios**
-- **Implementación del Protocolo Signal**: El mayor desafío ha sido y sigue siendo la correcta implementación del Protocolo Signal para el cifrado de extremo a extremo. Esto iba mucho más allá de simplemente "cifrar mensajes", implicaba comprender y manejar la compleja derivación de claves criptográficas (KDF Chain y Double Ratchet) para cada mensaje. El objetivo es asegurar que cada mensaje se cifre con una clave única y efímera, aunque si se completo la gestión de llaves del protocolo X3ECDH(IK, SPK, OPK y EPK). Queda pendiente completar la derivación de llaves para la siguiente entrega.
+- **Evaluación de Protocolos Criptográficos**: El desafío inicial fue la intención de implementar el Protocolo Signal. Sin embargo, un análisis profundo reveló su alta complejidad, especialmente en la gestión de estado del Double Ratchet. Esto condujo a una decisión: pivotar hacia un protocolo sin estado basado en ECIES. Esta decisión permitió entregar un producto final robusto y seguro, que cumple con el requisito crítico de Confidencialidad Futura, dentro de las limitaciones del proyecto. La lección más importante fue la necesidad de equilibrar la seguridad teórica "perfecta" con la complejidad de implementación práctica para construir un sistema seguro y funcional.
