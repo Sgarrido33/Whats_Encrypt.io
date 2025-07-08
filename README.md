@@ -84,7 +84,7 @@ Basado en la descripción de la primera entrega, estos son los requerimientos de
     - Inicio de sesión de usuarios existentes mediante nombre de usuario y contraseña.
     - Autenticación de usuarios mediante JSON Web Tokens (JWT) para mantener la sesión y los permisos.
 
-- **Gestión de Claves Criptográficas (Protocolo Signal):**
+- **Gestión de Claves Criptográficas:**
     - Manejo de llaves públicas y privadas.
     - Almacenamiento seguro de las claves públicas de los usuarios en el servidor para su distribución.
     - Solicitud de claves públicas de otros usuarios al servidor.
@@ -373,4 +373,4 @@ Estas medidas aseguran que la aplicación respeta los derechos digitales de los 
 - **Gestión de Backups en la Nube (MongoDB Atlas)**: Implementar un sistema de respaldo robusto para nuestra base de datos resultó sorprendentemente eficiente gracias a los servicios SaaS de almacenamiento como MongoDB Atlas. Sus configuraciones de Cloud Backup están altamente optimizadas, permitiéndonos establecer políticas de snapshots continuos y recuperación puntual de forma rápida. Esto nos liberó de la compleja tarea de gestionar la infraestructura de backups manualmente, permitiéndonos concentrarnos en otros componentes críticos del proyecto.
 
 **Desafios**
-- **Evaluación de Protocolos Criptográficos**: El desafío inicial fue la intención de implementar el Protocolo Signal. Sin embargo, un análisis profundo reveló su alta complejidad, especialmente en la gestión de estado del Double Ratchet. Esto condujo a una decisión: pivotar hacia un protocolo sin estado basado en ECIES. Esta decisión permitió entregar un producto final robusto y seguro, que cumple con el requisito crítico de Confidencialidad Futura, dentro de las limitaciones del proyecto. La lección más importante fue la necesidad de equilibrar la seguridad teórica "perfecta" con la complejidad de implementación práctica para construir un sistema seguro y funcional.
+- **Evaluación de Protocolos Criptográficos**: El desafío inicial fue la intención de implementar el Protocolo . Sin embargo, un análisis profundo reveló su alta complejidad, especialmente en la gestión de estado del Double Ratchet. Esto condujo a una decisión: pivotar hacia un protocolo sin estado basado en ECIES. Esta decisión permitió entregar un producto final robusto y seguro, que cumple con el requisito crítico de Confidencialidad Futura, dentro de las limitaciones del proyecto. La lección más importante fue la necesidad de equilibrar la seguridad teórica "perfecta" con la complejidad de implementación práctica para construir un sistema seguro y funcional.
