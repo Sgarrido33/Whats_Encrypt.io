@@ -359,7 +359,7 @@ La aplicación ha sido diseñada con el principio fundamental de **restablecer l
 
 - **Prevención de abusos**: Se establecen políticas como la no retención de mensajes una vez entregados, autenticación robusta con JWT, y mecanismos para mitigar accesos no autorizados.
 
-- **Responsabilidad técnica**: Se promueve la implementación segura del protocolo ECIES, incluyendo autenticación fuera de banda y análisis estático del código para detectar vulnerabilidades antes del despliegue.
+- **Responsabilidad técnica**: Se promueve la implementación segura del protocolo ECIES, incluyendo el análisis estático del código para detectar vulnerabilidades antes del despliegue.
 
 Estas medidas aseguran que la aplicación respeta los derechos digitales de los usuarios, cumpliendo con principios éticos de seguridad, confidencialidad y responsabilidad tecnológica.
 
