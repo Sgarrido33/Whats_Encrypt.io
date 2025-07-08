@@ -65,10 +65,9 @@ La aplicación tiene los siguientes flujos:
    b. Usando su clave privada de identidad y la clave pública efímera del Cliente A (que venía en el paquete), calcula el mismo secreto compartido.  
    c. Deriva la misma clave AES y descifra el mensaje para mostrarlo en la interfaz.
 
+<img width="281" alt="image" src="https://github.com/user-attachments/assets/98f68667-1b16-4164-844e-2913d2dd4ddd" />
 
-<img width="281" alt="image" src="https://github.com/user-attachments/assets/158ec3c0-837e-493f-ad3f-76a507e75b6e" />
-
-<img width="590" alt="image" src="https://github.com/user-attachments/assets/7cefde76-88f4-4fd3-99c2-4f480ff3b6c5" />
+<img width="590" alt="image" src="https://github.com/user-attachments/assets/ee00cf69-ba37-4357-bed3-c5b10d40e606" />
 
 ## 1. Requerimientos de Funcionalidad 
 
