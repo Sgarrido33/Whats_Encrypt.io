@@ -2,8 +2,8 @@
 - Juan Aquino
 - Rodrigo Castro
 
-## Primera entrega
-En el presente proyecto se desarrollado una solución de seguridad orientada a la mensajeria instantánea ecriptada. Se tiene una aplicación web que permite la comunicación directa entre usuarios mediante un chat que asegura la privacidad mediante un cifrado de extremo a extremo (E2EE)-
+## Resumen del Proyecto
+En el presente proyecto se ha desarrollado una solución de seguridad orientada a la mensajería instantánea. Se tiene una aplicación web que permite la comunicación directa entre usuarios mediante un chat que asegura la privacidad y confidencialidad a través de un cifrado de extremo a extremo (E2EE) robusto.
 
 ## Motivación del Proyecto: Restableciendo la Privacidad en la Mensajería
 
@@ -19,17 +19,16 @@ Con el E2EE, no solo protegemos tu información de accesos no autorizados, sino 
 
 ## Objetivos
 
-### Sobre seguridad con criptografía
-- Se plantea tener un cifrado de extremo a extremo de los mensajes para garantizar la confiablidad absoluta de los usuarios.
-- Se va implementar un sistema de distribución de llaves para autenticación(Protocolo Signal) y otorgar permisos en la aplicación.
-- Permitir la comunicación asíncrona.
-- Añadir autenticación fuera de banda.
+### Sobre la Criptografía Implementada
+- Se ha implementado un cifrado E2EE para todos los mensajes, garantizando la confidencialidad absoluta de las conversaciones.
+- Se implementó un protocolo personalizado basado en ECIES (Elliptic Curve Integrated Encryption Scheme) para proteger cada mensaje individualmente.
+- Gracias al uso de claves efímeras por mensaje en el esquema ECIES, se garantiza que si la clave de largo plazo de un usuario es comprometida, los mensajes pasados no pueden ser descifrados.
+- La arquitectura soporta el almacenamiento de mensajes cifrados para usuarios desconectados, que se entregan de forma segura cuando el usuario vuelve a estar en línea.
 
-### Sobre el esquema y medidas de seguridad para tener altos estándares de seguridad
-1. Se autentifica a los usuarios que ingresan a la web mediante el registro de usuario - contraseña, usando tokens JWT para asegurar la identidad y seguridad de las cuentas de los usuarios.
-2. Se registra los logs de las transmision y conexiones de los usuarios para monitorear y realizar auditorias ante posibles vulnerabilidades.
-3. Se tendrá un backup de los mensajes del servidor, que almacena solo mensajes asíncronos que aún no se ha enviar a un usuario desconectado (todos encriptados).
-4. Se tendrá autenticación adicional mediante certificados de seguridad, para garantizar la autenticidad de los usuarios que deseen comunicarse con usuarios no regitrados.
+### Sobre el esquema y medidas de seguridad 
+1. Se utiliza un sistema de registro de usuario/contraseña, con contraseñas hasheadas mediante bcrypt. Las sesiones se gestionan con JSON Web Tokens (JWT) para asegurar la identidad y los permisos en cada solicitud.
+2. El servidor registra metadatos de conexión y transmisión para monitoreo y auditoría, sin almacenar nunca el contenido de los mensajes.
+3. Los mensajes asíncronos se almacenan en la base de datos (MongoDB Atlas) en su formato cifrado, inaccesibles para el servidor. Las claves privadas de los usuarios nunca abandonan el dispositivo del cliente.
 
 ### Sobre el diseño y funcionalidades (con especificaciones de seguridad)
 
@@ -40,31 +39,32 @@ Con el E2EE, no solo protegemos tu información de accesos no autorizados, sino 
 La aplicación tiene los siguientes flujos:
 
 ### Registro de usuarios
-- Cliente A -> Servidor: Petición POST con username/password se registra en la aplicación.
-- Servidor -> Cliente A: El servidor recibe la solicitud y genera tanto un token de autenticidad, registra al usuario y devuelve una respuesta con un token JWT si las credenciales son válidas.
-- Cliente A -> Servidor: Genera las llaves para identificarse a largo plazo al usuario, la llave de identidad IK, la llave de session presignedkey SPK y llaves de autenticación por canal de comunicación one-time key OPK, y se suben al servidor.
-- Servidor: Guarda las llaves públicas del usuario y dispone las llaves para conectar la comunicación con otros usuarios.
+-Un cliente se registra en el servidor con su usuario y contraseña. El servidor devuelve un token JWT.
+-Tras el primer inicio de sesión, el cliente genera un par de claves de identidad de largo plazo (basadas en curvas elípticas).
+-El cliente almacena su clave privada de forma segura en el almacenamiento local del navegador (IndexedDB) y sube su clave pública de identidad al servidor.
+-El servidor almacena esta clave pública para distribuirla a otros usuarios que deseen iniciar una conversación.
 
 <img width="276" alt="image" src="https://github.com/user-attachments/assets/8c83376a-0fed-4168-bf1a-b99efb5fda1d" />
 
 ### Comunicación instantánea
-1. Cliente A -> Servidor: Petición POST con username/password inicia sesión en la aplicación.
-2. Servidor -> Cliente A: El servidor recibe la solicitud y genera tanto un token de autenticidad, registra al usuario y devuelve una respuesta con un token JWT si las credenciales son válidas.
-3. Cliente A -> Servidor: Al registrarse se sube su clave pública.
-4. Cliente A -> Servidor: Petición GET para solicitar la clave pública de Cliente B.
-5. Servidor -> Cliente A: Devuelve la clave pública de Cliente B.
-6. Cliente A: Cliente A usa su clave privada y la clave pública de B para calcular un secreto compartido.
-7. Cliente A: Cifra el mensaje usando el Secreto Compartido.
-8. Cliente A -> Servidor: Petición POST con el mensaje ya cifrado.
-9. Servidor: Guarda el mensaje cifrado en MongoDB Atlas y emite el mensaje cifrado por Socket.IO.
-10. Servidor: Servidor -> Cliente B (y Cliente A): Envío del mensaje cifrado a través del canal WebSocket.
-11. Servidor: (Local en los Clientes): Descifran el mensaje con el Secreto Compartido para mostrarlo en la UI.
+1. El Cliente A inicia sesión y recibe un token JWT.
+2. Para enviar un mensaje al Cliente B, el Cliente A solicita la clave pública de identidad del Cliente B al servidor.
+3.
+a. El Cliente A genera un par de claves efímeras (de un solo uso).
+b. Usando su clave privada efímera y la clave pública de identidad del Cliente B, calcula un secreto compartido mediante el algoritmo ECDH.
+c. A partir de este secreto, deriva una clave de cifrado simétrico (AES) y la usa para cifrar el mensaje.
+4. El Cliente A envía un paquete al servidor que contiene el mensaje cifrado, su clave pública efímera y otros datos necesarios para el descifrado.
+5. El servidor recibe el paquete cifrado y lo retransmite a todos los participantes de la conversación (incluido el emisor) a través de Socket.IO.
+6.
+a. El Cliente B (receptor) recibe el paquete.
+b. Usando su clave privada de identidad y la clave pública efímera del Cliente A (que venía en el paquete), calcula el mismo secreto compartido.
+c. Deriva la misma clave AES y descifra el mensaje para mostrarlo en la interfaz.
 
 <img width="281" alt="image" src="https://github.com/user-attachments/assets/158ec3c0-837e-493f-ad3f-76a507e75b6e" />
 
 <img width="590" alt="image" src="https://github.com/user-attachments/assets/7cefde76-88f4-4fd3-99c2-4f480ff3b6c5" />
 
-## 1. Requerimientos de Funcionalidad
+## 1. Requerimientos de Funcionalidad 
 
 Basado en la descripción de la primera entrega, estos son los requerimientos de funcionalidad:
 
