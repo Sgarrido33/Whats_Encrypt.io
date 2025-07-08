@@ -48,17 +48,23 @@ La aplicación tiene los siguientes flujos:
 
 ### Comunicación instantánea
 1. El Cliente A inicia sesión y recibe un token JWT.
+
 2. Para enviar un mensaje al Cliente B, el Cliente A solicita la clave pública de identidad del Cliente B al servidor.
-3.
-a. El Cliente A genera un par de claves efímeras (de un solo uso).
-b. Usando su clave privada efímera y la clave pública de identidad del Cliente B, calcula un secreto compartido mediante el algoritmo ECDH.
-c. A partir de este secreto, deriva una clave de cifrado simétrico (AES) y la usa para cifrar el mensaje.
+
+3.  
+   a. El Cliente A genera un par de claves efímeras (de un solo uso).  
+   b. Usando su clave privada efímera y la clave pública de identidad del Cliente B, calcula un secreto compartido mediante el algoritmo ECDH.  
+   c. A partir de este secreto, deriva una clave de cifrado simétrico (AES) y la usa para cifrar el mensaje.
+
 4. El Cliente A envía un paquete al servidor que contiene el mensaje cifrado, su clave pública efímera y otros datos necesarios para el descifrado.
+
 5. El servidor recibe el paquete cifrado y lo retransmite a todos los participantes de la conversación (incluido el emisor) a través de Socket.IO.
-6.
-a. El Cliente B (receptor) recibe el paquete.
-b. Usando su clave privada de identidad y la clave pública efímera del Cliente A (que venía en el paquete), calcula el mismo secreto compartido.
-c. Deriva la misma clave AES y descifra el mensaje para mostrarlo en la interfaz.
+
+6.  
+   a. El Cliente B (receptor) recibe el paquete.  
+   b. Usando su clave privada de identidad y la clave pública efímera del Cliente A (que venía en el paquete), calcula el mismo secreto compartido.  
+   c. Deriva la misma clave AES y descifra el mensaje para mostrarlo en la interfaz.
+
 
 <img width="281" alt="image" src="https://github.com/user-attachments/assets/158ec3c0-837e-493f-ad3f-76a507e75b6e" />
 
